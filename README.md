@@ -1,10 +1,23 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/Ks7Ywtwc)
-# payments
+# Eventia - Payments App
 
-Aplicación **Payments** del [Proyecto IAW 2026](https://iaw-2026.github.io/proyecto/) — comisión `<!-- completar -->`.
+Aplicación web desarrollada con Next.js y App Router.
 
-Esta app corresponde al módulo de pagos en los proyectos de tipo **A (Transporte)**, **B (Delivery)** y **C (Marketplace)**.
+## Tecnologías
 
----
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
 
-Enunciado completo: <https://iaw-2026.github.io/proyecto/>
+## Metodología:
+- Git Flow
+- Pull Requests
+- Releases con tags
+
+## Desarrollo
+
+Para ejecutar el proyecto localmente:
+
+```bash
+npm run dev
+
