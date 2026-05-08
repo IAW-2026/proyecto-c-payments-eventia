@@ -30,7 +30,7 @@ El módulo de **Payments** utiliza una base de datos PostgreSQL hospedada en **N
 
 La base de datos se compone de tres tablas principales:
 
-1.  **Vendedor**: Almacena la información de los organizadores y sus credenciales de **Mercado Pago** (`access_token_mp`).
+1.  **Vendedor**: Almacena la información de los organizadores.
 2.  **Transaccion**: Registra cada intento de pago. Se vincula con el resto de las apps mediante el campo `id_pedido`.
 3.  **Venta**: Registro consolidado de los pagos aprobados. Una transacción exitosa genera una venta única.
 
