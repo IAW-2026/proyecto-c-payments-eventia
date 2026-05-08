@@ -7,10 +7,48 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+// enum para los estados
+enum EstadoTransaccion {
+  PENDIENTE
+  COMPLETADA
+  FALLIDA
+  CANCELADA
+}
+
 model Transaccion {
-  id_transaccion     Int      @id @default(autoincrement())
-  estado_transaccion String
+  id_transaccion     Int               @id @default(autoincrement())
   id_pedido          Int
-  creado_en          DateTime @default(now())
-  actualizado_en     DateTime @updatedAt
+  monto              Int
+  moneda             String            @default("ARS")
+
+  estado_transaccion EstadoTransaccion @default(PENDIENTE)
+
+  id_comprador       String            // ID de Clerk
+  id_vendedor        String            // ID de Clerk
+
+  creado_en         DateTime          @default(now())
+  actualizado_en    DateTime          @updatedAt
+  venta             Venta?
+}
+
+model Vendedor {
+  id_vendedor String   @id // ID de Clerk
+  nombre      String
+  email       String   @unique
+  ventas      Venta[]
+  creado_en   DateTime @default(now())
+}
+
+
+
+model Venta {
+  id_venta       Int         @id @default(autoincrement())
+  fecha_venta    DateTime    @default(now())
+
+  id_transaccion Int         @unique
+  transaccion    Transaccion @relation(fields: [id_transaccion], references: [id_transaccion])
+
+  id_vendedor    String
+  vendedor       Vendedor    @relation(fields: [id_vendedor], references: [id_vendedor])
 }
