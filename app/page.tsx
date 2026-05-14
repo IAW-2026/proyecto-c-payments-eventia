@@ -1,5 +1,32 @@
-import Image from "next/image";
+"use client"
+import { crearPago } from "@/app/lib/actions";
 
+export default function PaginaDePrueba() {
+  const alHacerClic = async () => {
+    // 1. Llamamos a la acción
+    const url = await crearPago(); 
+    
+    // 2. Si nos devolvió el init_point, redireccionamos
+    if (url) {
+      console.log("Redirigiendo a:", url);
+      window.location.href = url; 
+    } else {
+      alert("No se pudo obtener el link de pago");
+    }
+  };
+
+  return (
+    <div className="p-10">
+      <button 
+        onClick={alHacerClic}
+        className="bg-sky-600 text-white px-4 py-2 rounded-lg"
+      >
+        Probar Pago de $100
+      </button>
+    </div>
+  );
+}
+/*
 export default function Home() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -63,3 +90,4 @@ export default function Home() {
     </div>
   );
 }
+*/
