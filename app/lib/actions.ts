@@ -6,6 +6,18 @@ export async function crearPago() {
     const res = await preference.create({
       
       body: {
+        payment_methods: {
+          excluded_payment_methods: [],
+          excluded_payment_types: [
+                    {
+                              id: "ticket"
+                    },
+                    {
+                              id: "credit_card"
+                    }
+          ],
+          installments: 1
+},
         items: [
           {
             id: 'codigo-entrada-1',
@@ -19,7 +31,7 @@ export async function crearPago() {
         failure: process.env.NEXT_PUBLIC_BACK_URL_FAILURE,
         pending: process.env.NEXT_PUBLIC_BACK_URL_PENDING,
     },
-        //auto_return: "approved",
+        auto_return: "approved",
       }
     });
 
