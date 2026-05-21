@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.3.3",
+    "@mercadopago/sdk-react": "^1.0.7",
     "@prisma/client": "^6.19.3",
     "mercadopago": "^2.12.0",
     "next": "16.2.5",

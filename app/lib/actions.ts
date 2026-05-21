@@ -36,7 +36,8 @@ export async function crearPago() {
     });
 
     console.log("¡URL Generada con éxito!", res.init_point);
-    return res.init_point; 
+  //return res.init_point; 
+  return { id: res.id };
     
   } catch (error) {
     console.error("Error detallado de MP:", error);
