@@ -2,19 +2,21 @@
 import preference from '@/integraciones/mercadopago';
 
 export async function crearPago() {
+const fechaExpiracion = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   try {
     const res = await preference.create({
       
       body: {
+
+        expires: true,
+        expiration_date_to: fechaExpiracion, 
+
         payment_methods: {
           excluded_payment_methods: [],
           excluded_payment_types: [
                     {
                               id: "ticket"
                     },
-                    {
-                              id: "credit_card"
-                    }
           ],
           installments: 1
 },
@@ -36,7 +38,6 @@ export async function crearPago() {
     });
 
     console.log("¡URL Generada con éxito!", res.init_point);
-  //return res.init_point; 
   return { id: res.id };
     
   } catch (error) {
