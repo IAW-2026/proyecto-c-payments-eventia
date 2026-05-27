@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { arizonia } from "@/app/ui/fonts";
 import ResumenPedido from "@/app/ui/ResumenPedido";
 import DesgloseCompra from "@/app/ui/DesgloseCompra";
@@ -8,6 +9,7 @@ import DesgloseCompra from "@/app/ui/DesgloseCompra";
 export default function PaginaDePrueba() {
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [cargando, setCargando] = useState(false);
+  const { user } = useUser();
 
   const datosEvento = {
     titulo: "Taller de Cerámica",
@@ -24,16 +26,18 @@ export default function PaginaDePrueba() {
   const procesarIntencionDePago = async () => {
     setCargando(true);
     try {
-      const respuesta = await fetch("/api/payments/nuevaTransaccion", {
+      if (!user?.id) {
+        alert("No se pudo identificar al comprador");
+        return;
+      }
+
+      const respuesta = await fetch("/api/buyer/crearPedidoMock", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          idPedido: 30,
-          idEvento: 145,
-          monto: datosEvento.total,
-          idComprador: "user_comprador_sandbox",
+          idComprador: user.id,
         }),
       });
 

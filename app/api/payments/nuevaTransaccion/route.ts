@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
 import { crearPreferenciaPago } from "@/app/lib/mercadopago";
+import { validarApiKey } from "@/app/lib/apiKey";
+import { obtenerRolUsuario, obtenerUsuarioClerk } from "@/app/lib/clerk";
 
 type NuevaTransaccionRequest = {
   idPedido: number;
@@ -59,6 +61,37 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Datos de transaccion invalidos" },
         { status: 400 },
+      );
+    }
+
+    const apiKeyValida = process.env.BUYER_API_KEY
+      ? validarApiKey(request, process.env.BUYER_API_KEY)
+      : false;
+
+    if (!apiKeyValida) {
+      return NextResponse.json(
+        { error: "API key invalida" },
+        { status: 401 },
+      );
+    }
+
+    const comprador = await obtenerUsuarioClerk(body.idComprador);
+
+    if (!comprador) {
+      return NextResponse.json(
+        { error: "Comprador inexistente en Clerk" },
+        { status: 404 },
+      );
+    }
+
+    const rolComprador =
+      obtenerRolUsuario(comprador.publicMetadata) ??
+      obtenerRolUsuario(comprador.privateMetadata);
+
+    if (rolComprador !== "buyer") {
+      return NextResponse.json(
+        { error: "El usuario de Clerk no tiene rol buyer" },
+        { status: 403 },
       );
     }
 

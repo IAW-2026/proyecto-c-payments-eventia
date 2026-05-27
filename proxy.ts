@@ -5,6 +5,7 @@ const isPublicRoute = createRouteMatcher([
   "/sign-up",
   '/pago-exitoso(.*)', 
   '/pago-fallido(.*)',
+  '/api/buyer(.*)',
   '/api/payments/nuevaTransaccion(.*)',
   '/api/seller(.*)',
   '/api/payments/webhooks/mercadopago(.*)'
