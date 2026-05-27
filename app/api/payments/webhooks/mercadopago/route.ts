@@ -1,90 +1,165 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
+import prisma from "@/app/lib/prisma";
+
+type PagoMercadoPago = {
+  id: number;
+  status: string;
+  external_reference?: string | null;
+};
+
+function obtenerFirma(xSignature: string) {
+  const parts = xSignature.split(",");
+  let ts: string | null = null;
+  let hash: string | null = null;
+
+  parts.forEach((part) => {
+    const [key, value] = part.split("=");
+    if (key?.trim() === "ts") ts = value?.trim();
+    if (key?.trim() === "v1") hash = value?.trim();
+  });
+
+  return { ts, hash };
+}
+
+function validarFirma({
+  dataId,
+  xRequestId,
+  ts,
+  hash,
+}: {
+  dataId: string;
+  xRequestId: string;
+  ts: string;
+  hash: string;
+}) {
+  const secretMercadoPago = process.env.MP_WEBHOOK_SECRET;
+
+  if (!secretMercadoPago) {
+    throw new Error("MP_WEBHOOK_SECRET no esta definido");
+  }
+
+  const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+  const hmac = crypto.createHmac("sha256", secretMercadoPago);
+  hmac.update(manifest);
+
+  return hmac.digest("hex") === hash;
+}
+
+function debeValidarFirmaEstricto() {
+  return process.env.MP_WEBHOOK_STRICT_SIGNATURE === "true";
+}
+
+function mapearEstadoTransaccion(status: string) {
+  if (status === "approved") return "APROBADA";
+  if (status === "rejected" || status === "cancelled") {
+    return "CANCELADA";
+  }
+
+  return "PENDIENTE";
+}
+
+async function consultarPago(dataId: string): Promise<PagoMercadoPago> {
+  const accessToken = process.env.MP_ACCESS_TOKEN;
+
+  if (!accessToken) {
+    throw new Error("MP_ACCESS_TOKEN no esta definido");
+  }
+
+  const responsePago = await fetch(
+    `https://api.mercadopago.com/v1/payments/${dataId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    },
+  );
+
+  if (!responsePago.ok) {
+    throw new Error("No se pudo verificar el pago en Mercado Pago");
+  }
+
+  return responsePago.json();
+}
 
 export async function POST(request: Request) {
   try {
-    // 1. Obtener los headers clave para la validación
     const xSignature = request.headers.get("x-signature");
     const xRequestId = request.headers.get("x-request-id");
 
-    // 2. Obtener los Query Params de la URL (Mercado Pago manda ahí el type y el data.id)
     const { searchParams } = new URL(request.url);
-    const dataId = searchParams.get("data.id");
-    const type = searchParams.get("type");
+    const topic = searchParams.get("topic");
+    const type = searchParams.get("type") ?? topic;
+    const dataId = searchParams.get("data.id") ?? (
+      topic === "payment" ? searchParams.get("id") : null
+    );
 
-    // Si no viene información relevante o no hay firma, cortamos
-    if (!xSignature || !dataId || type !== "payment") {
-      return new NextResponse("Notificación ignorada", { status: 200 });
+    if (!dataId || type !== "payment") {
+      return new NextResponse("Notificacion ignorada", { status: 200 });
     }
 
-    // 3. EXTRAER EL TIMESTAMP (ts) Y EL HASH (v1) DE LA FIRMA
-    // La firma viene como: "ts=1742505638683,v1=ced36ab..."
-    const parts = xSignature.split(",");
-    let ts: string | null = null;
-    let hash: string | null = null;
+    if (xSignature && xRequestId) {
+      const { ts, hash } = obtenerFirma(xSignature);
 
-    parts.forEach((part) => {
-      const [key, value] = part.split("=");
-      if (key?.trim() === "ts") ts = value?.trim();
-      if (key?.trim() === "v1") hash = value?.trim();
-    });
+      if (!ts || !hash) {
+        return new NextResponse("Firma incompleta", { status: 401 });
+      }
 
-    // 4. VALIDAR CONTRA TU CLAVE SECRETA (La sacás de tu panel de Mercado Pago)
-    const SECRET_MERCADOPAGO = process.env.MP_WEBHOOK_SECRET || "tu_clave_secreta_aqui";
+      const firmaValida = validarFirma({
+        dataId,
+        xRequestId,
+        ts,
+        hash,
+      });
 
-    // Armamos el template idéntico al manual
-    const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`;
+      if (!firmaValida) {
+        console.error("Firma de notificacion invalida");
 
-    // Calculamos el HMAC SHA256 en formato Hexadecimal
-    const hmac = crypto.createHmac("sha256", SECRET_MERCADOPAGO);
-    hmac.update(manifest);
-    const calculatedSignature = hmac.digest("hex");
-
-    // Comparamos firmas para evitar fraudes
-    if (calculatedSignature !== hash) {
-      console.error("❌ Alerta: Firma de notificación inválida");
-      return new NextResponse("Firma no coincide", { status: 401 });
+        if (debeValidarFirmaEstricto()) {
+          return new NextResponse("Firma no coincide", { status: 401 });
+        }
+      }
+    } else {
+      console.warn("Webhook de Mercado Pago recibido sin firma");
     }
 
-    console.log(`✅ Notificación legítima recibida para el pago ID: ${dataId}`);
+    const datosPago = await consultarPago(dataId);
+    const referenciaPago = datosPago.external_reference;
 
-    // 5. CONSULTAR EL ESTADO REAL DEL PAGO A MERCADO PAGO
-    // Hacemos el GET al endpoint oficial que menciona tu manual
-    const responsePago = await fetch(`https://api.mercadopago.com/v1/payments/${dataId}`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN || "tu_access_token_aqui"}`,
+    if (!referenciaPago) {
+      console.error(`Pago ${dataId} sin external_reference`);
+      return new NextResponse("Pago sin referencia", { status: 200 });
+    }
+
+    const transaccion = await prisma.transaccion.update({
+      where: { referencia_pago: referenciaPago },
+      data: {
+        id_pago_proveedor: String(datosPago.id),
+        estado_proveedor: datosPago.status,
+        estado_transaccion: mapearEstadoTransaccion(datosPago.status),
       },
     });
 
-    if (!responsePago.ok) {
-      throw new Error("No se pudo verificar el pago en los servidores de Mercado Pago");
+    if (datosPago.status === "approved") {
+      await prisma.venta.upsert({
+        where: { id_transaccion: transaccion.id_transaccion },
+        update: {},
+        create: {
+          id_transaccion: transaccion.id_transaccion,
+          id_vendedor: transaccion.id_vendedor,
+        },
+      });
     }
 
-    const datosPago = await responsePago.json();
-    const status = datosPago.status; // "approved", "pending", "rejected", etc.
+    console.log(
+      `Pago ${dataId} procesado para transaccion ${transaccion.id_transaccion}: ${datosPago.status}`,
+    );
 
-    // 6. ACÁ CONECTÁS CON TU BASE DE DATOS DE NEON
-    if (status === "approved") {
-      console.log(`🎉 ¡El pago ${dataId} fue APROBADO!`);
-      
-      // Ejemplo conceptual con Prisma:
-      // await prisma.inscripcion.update({
-      //   where: { id: datosPago.external_reference },
-      //   data: { estado: "PAGADO" }
-      // });
-      
-    } else {
-      console.log(`⚠️ El pago ${dataId} cambió al estado: ${status}`);
-    }
-
-    // 7. RESPONDER OBLIGATORIAMENTE UN 200 OK ANTES DE LOS 22 SEGUNDOS
-    // Si no respondemos esto, Mercado Pago te va a reintentar mandar el webhook mil veces
     return new NextResponse("OK", { status: 200 });
-
   } catch (error) {
-    console.error("❌ Error procesando el Webhook:", error);
-    // Devolvemos 200 igual para que MP no se clave reintentando si fue un error de nuestro servidor
+    console.error("Error procesando el webhook:", error);
+
     return new NextResponse("Error interno procesado", { status: 200 });
   }
 }

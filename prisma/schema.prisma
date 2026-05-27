@@ -8,11 +8,10 @@ datasource db {
 }
 
 
-// enum para los estados
+// enum para los estados de la transaccion
 enum EstadoTransaccion {
   PENDIENTE
-  COMPLETADA
-  FALLIDA
+  APROBADA
   CANCELADA
 }
 
@@ -26,6 +25,11 @@ model Transaccion {
 
   id_comprador       String            // ID de Clerk
   id_vendedor        String            // ID de Clerk
+
+  id_preferencia_pago String?
+  id_pago_proveedor   String?
+  estado_proveedor    String?
+  referencia_pago     String?          @unique
 
   creado_en         DateTime          @default(now())
   actualizado_en    DateTime          @updatedAt

@@ -1,0 +1,128 @@
+import { NextResponse } from "next/server";
+import prisma from "@/app/lib/prisma";
+import { crearPreferenciaPago } from "@/app/lib/mercadopago";
+
+type NuevaTransaccionRequest = {
+  idPedido: number;
+  idEvento: number;
+  monto: number;
+  idComprador: string;
+};
+
+type VendedorResponse = {
+  idVendedor: string;
+};
+
+function esNuevaTransaccionValida(
+  body: unknown,
+): body is NuevaTransaccionRequest {
+  if (!body || typeof body !== "object") return false;
+
+  const datos = body as Partial<NuevaTransaccionRequest>;
+
+  return (
+    Number.isInteger(datos.idPedido) &&
+    Number.isInteger(datos.idEvento) &&
+    typeof datos.monto === "number" &&
+    datos.monto > 0 &&
+    typeof datos.idComprador === "string" &&
+    datos.idComprador.trim().length > 0
+  );
+}
+
+async function obtenerIdVendedor(idEvento: number, origen: string) {
+  const sellerApiUrl = process.env.SELLER_API_URL ?? `${origen}/api`;
+
+  const response = await fetch(
+    `${sellerApiUrl}/seller/eventos/vendedor/${idEvento}`,
+    { method: "GET" },
+  );
+
+  if (!response.ok) {
+    throw new Error(`Seller respondio con estado ${response.status}`);
+  }
+
+  const data = (await response.json()) as Partial<VendedorResponse>;
+
+  if (typeof data.idVendedor !== "string" || data.idVendedor.trim().length === 0) {
+    throw new Error("Seller no devolvio un idVendedor valido");
+  }
+
+  return data.idVendedor;
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+
+    if (!esNuevaTransaccionValida(body)) {
+      return NextResponse.json(
+        { error: "Datos de transaccion invalidos" },
+        { status: 400 },
+      );
+    }
+
+    const origen = new URL(request.url).origin;
+    const idVendedor = await obtenerIdVendedor(body.idEvento, origen);
+
+    await prisma.vendedor.upsert({
+      where: { id_vendedor: idVendedor },
+      update: {
+        nombre: `Vendedor Sandbox Evento ${body.idEvento}`,
+        email: `vendedor.${idVendedor}@eventia.test`,
+      },
+      create: {
+        id_vendedor: idVendedor,
+        nombre: `Vendedor Sandbox Evento ${body.idEvento}`,
+        email: `vendedor.${idVendedor}@eventia.test`,
+      },
+    });
+
+    const transaccion = await prisma.transaccion.create({
+      data: {
+        id_pedido: body.idPedido,
+        id_comprador: body.idComprador,
+        id_vendedor: idVendedor,
+        monto: body.monto,
+        moneda: "ARS",
+      },
+    });
+
+    const referenciaPago = String(transaccion.id_transaccion);
+    const respuestaPreferencia = await crearPreferenciaPago({
+      idTransaccion: transaccion.id_transaccion,
+      idPedido: body.idPedido,
+      monto: body.monto,
+    });
+
+    if (!respuestaPreferencia?.id) {
+      throw new Error("No se pudo crear la preferencia de pago");
+    }
+
+    const transaccionActualizada = await prisma.transaccion.update({
+      where: { id_transaccion: transaccion.id_transaccion },
+      data: {
+        id_preferencia_pago: respuestaPreferencia.id,
+        referencia_pago: referenciaPago,
+        estado_proveedor: "preferencia_creada",
+      },
+    });
+
+    return NextResponse.json(
+      {
+        idTransaccion: transaccionActualizada.id_transaccion,
+        idPedido: transaccionActualizada.id_pedido,
+        preferenceId: respuestaPreferencia.id,
+        estado: transaccionActualizada.estado_transaccion,
+      },
+      { status: 201 },
+    );
+  } catch (error) {
+    console.error("Error creando nueva transaccion:", error);
+
+    return NextResponse.json(
+      { error: "No se pudo crear la transaccion" },
+      { status: 500 },
+    );
+  }
+}
