@@ -1,4 +1,3 @@
-import { EstadoTransaccion } from "@prisma/client";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/app/lib/prisma";
@@ -52,12 +51,12 @@ function debeValidarFirmaEstricto() {
 }
 
 function mapearEstadoTransaccion(status: string) {
-  if (status === "approved") return EstadoTransaccion.APROBADA;
+  if (status === "approved") return "APROBADA";
   if (status === "rejected" || status === "cancelled") {
-    return EstadoTransaccion.CANCELADA;
+    return "CANCELADA";
   }
 
-  return EstadoTransaccion.PENDIENTE;
+  return "PENDIENTE";
 }
 
 async function consultarPago(dataId: string): Promise<PagoMercadoPago> {
