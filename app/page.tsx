@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { arizonia } from "@/app/ui/fonts";
-import { crearPago } from "@/app/lib/actions";
 import ResumenPedido from "@/app/ui/ResumenPedido";
 import DesgloseCompra from "@/app/ui/DesgloseCompra";
 
@@ -25,11 +24,32 @@ export default function PaginaDePrueba() {
   const procesarIntencionDePago = async () => {
     setCargando(true);
     try {
-      const res = await crearPago();
-      if (res && typeof res === "object" && "id" in res) {
-        setPreferenceId(res.id as string);
-      } else if (typeof res === "string" && !(res as string).startsWith("http")) {
-        setPreferenceId(res);
+      const respuesta = await fetch("/api/payments/nuevaTransaccion", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          idPedido: 30,
+          idEvento: 145,
+          monto: datosEvento.total,
+          idComprador: "user_comprador_sandbox",
+        }),
+      });
+
+      const tipoContenido = respuesta.headers.get("content-type");
+
+      if (!tipoContenido?.includes("application/json")) {
+        const texto = await respuesta.text();
+        console.error("Respuesta inesperada del servidor:", texto);
+        alert("El servidor no devolvio una respuesta JSON valida");
+        return;
+      }
+
+      const data = await respuesta.json();
+
+      if (respuesta.ok && data.preferenceId) {
+        setPreferenceId(data.preferenceId);
       } else {
         alert("Error al obtener la preferencia");
       }
