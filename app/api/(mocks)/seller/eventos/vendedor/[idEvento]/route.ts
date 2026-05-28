@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server";
+import { validarApiKey } from "@/app/lib/apiKey";
 
 type Params = {
   idEvento: string;
 };
 
 export async function GET(
-  _request: Request,
+  request: Request,
   context: { params: Promise<Params> },
 ) {
+  if (!validarApiKey(request, process.env.SELLER_API_KEY)) {
+    return NextResponse.json(
+      { error: "API key invalida" },
+      { status: 401 },
+    );
+  }
+
   const { idEvento } = await context.params;
 
   if (!idEvento || Number.isNaN(Number(idEvento))) {

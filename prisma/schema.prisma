@@ -12,12 +12,13 @@ datasource db {
 enum EstadoTransaccion {
   PENDIENTE
   APROBADA
+  FALLIDA
   CANCELADA
 }
 
 model Transaccion {
   id_transaccion     Int               @id @default(autoincrement())
-  id_pedido          Int
+  id_pedido          Int               @unique
   monto              Int
   moneda             String            @default("ARS")
 

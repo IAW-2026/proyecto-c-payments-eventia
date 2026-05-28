@@ -7,7 +7,9 @@ const isPublicRoute = createRouteMatcher([
   '/pago-fallido(.*)',
   '/api/buyer(.*)',
   '/api/payments/nuevaTransaccion(.*)',
+  '/api/payments/pedidoCancelado(.*)',
   '/api/seller(.*)',
+  '/api/shipping(.*)',
   '/api/payments/webhooks/mercadopago(.*)'
 ]);
 

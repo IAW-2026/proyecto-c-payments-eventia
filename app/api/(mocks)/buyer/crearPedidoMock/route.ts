@@ -11,6 +11,37 @@ type PedidoMock = {
   idComprador: string;
 };
 
+type EventoMock = {
+  idEvento: number;
+  nombre: string;
+  descripcion: string;
+  fecha: string;
+  ubicacion: string;
+  stock: number;
+  precio: number;
+};
+
+const eventosMock: EventoMock[] = [
+  {
+    idEvento: 1,
+    nombre: "Taller de Ceramica",
+    descripcion: "Clase introductoria de ceramica",
+    fecha: "2025-10-10",
+    ubicacion: "Rosario",
+    stock: 20,
+    precio: 5000,
+  },
+  {
+    idEvento: 2,
+    nombre: "Cata de vinos",
+    descripcion: "Degustacion guiada",
+    fecha: "2025-11-02",
+    ubicacion: "Buenos Aires",
+    stock: 15,
+    precio: 8000,
+  },
+];
+
 function esCrearPedidoMockValido(
   body: unknown,
 ): body is CrearPedidoMockRequest {
@@ -24,13 +55,36 @@ function esCrearPedidoMockValido(
   );
 }
 
-function generarPedidoMock(idComprador: string): PedidoMock {
+function obtenerEventoMock() {
+  const indiceEvento = Math.floor(Math.random() * eventosMock.length);
+  return eventosMock[indiceEvento];
+}
+
+function generarPedidoMock({
+  idComprador,
+  evento,
+}: {
+  idComprador: string;
+  evento: EventoMock;
+}): PedidoMock {
   return {
-    idPedido: Math.floor(10000 + Math.random() * 90000),
-    idEvento: 145,
-    monto: 78000,
+    idPedido: Date.now() % 2_000_000_000,
+    idEvento: evento.idEvento,
+    monto: evento.precio,
     idComprador,
   };
+}
+
+function obtenerPaymentsApiUrl(origen: string) {
+  if (process.env.PAYMENTS_API_URL) {
+    return process.env.PAYMENTS_API_URL;
+  }
+
+  if (process.env.NODE_ENV === "development") {
+    return "http://localhost:3000/api";
+  }
+
+  return `${origen}/api`;
 }
 
 export async function POST(request: Request) {
@@ -51,10 +105,16 @@ export async function POST(request: Request) {
     }
 
     const origen = new URL(request.url).origin;
-    const pedido = generarPedidoMock(body.idComprador);
+    const paymentsApiUrl = obtenerPaymentsApiUrl(origen);
+    const evento = obtenerEventoMock();
+
+    const pedido = generarPedidoMock({
+      idComprador: body.idComprador,
+      evento,
+    });
 
     const respuestaPayments = await fetch(
-      `${origen}/api/payments/nuevaTransaccion`,
+      `${paymentsApiUrl}/payments/nuevaTransaccion`,
       {
         method: "POST",
         headers: {

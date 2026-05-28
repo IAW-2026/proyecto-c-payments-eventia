@@ -17,10 +17,9 @@ export default function PaginaDePrueba() {
     lugar: "Barrio Italia, Santiago",
     imagen: "https://images.unsplash.com/photo-1565192647048-f997ed87f5e2?q=80&w=600&auto=format&fit=crop", // Imagen cálida real
     items: [
-      { nombre: "Entrada General", cantidad: 2, precio: 14000 },
-      { nombre: "Entrada Amigo", cantidad: 2, precio: 25000 }
+      { nombre: "Entrada General", cantidad: 1, precio: 5000 }
     ],
-    total: 78000
+    total: 5000
   };
 
   const procesarIntencionDePago = async () => {
@@ -55,7 +54,11 @@ export default function PaginaDePrueba() {
       if (respuesta.ok && data.preferenceId) {
         setPreferenceId(data.preferenceId);
       } else {
-        alert("Error al obtener la preferencia");
+        const mensajeError = data.detalle
+          ? `${data.error}: ${data.detalle}`
+          : data.error;
+
+        alert(mensajeError ?? "Error al obtener la preferencia");
       }
     } catch (error) {
       console.error(error);
