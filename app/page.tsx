@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 import { arizonia } from "@/app/ui/fonts";
 import ResumenPedido from "@/app/ui/ResumenPedido";
 import DesgloseCompra from "@/app/ui/DesgloseCompra";
@@ -8,6 +9,7 @@ import DesgloseCompra from "@/app/ui/DesgloseCompra";
 export default function PaginaDePrueba() {
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [cargando, setCargando] = useState(false);
+  const { user } = useUser();
 
   const datosEvento = {
     titulo: "Taller de Cerámica",
@@ -15,25 +17,26 @@ export default function PaginaDePrueba() {
     lugar: "Barrio Italia, Santiago",
     imagen: "https://images.unsplash.com/photo-1565192647048-f997ed87f5e2?q=80&w=600&auto=format&fit=crop", // Imagen cálida real
     items: [
-      { nombre: "Entrada General", cantidad: 2, precio: 14000 },
-      { nombre: "Entrada Amigo", cantidad: 2, precio: 25000 }
+      { nombre: "Entrada General", cantidad: 1, precio: 5000 }
     ],
-    total: 78000
+    total: 5000
   };
 
   const procesarIntencionDePago = async () => {
     setCargando(true);
     try {
-      const respuesta = await fetch("/api/payments/nuevaTransaccion", {
+      if (!user?.id) {
+        alert("No se pudo identificar al comprador");
+        return;
+      }
+
+      const respuesta = await fetch("/api/buyer/crearPedidoMock", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          idPedido: 30,
-          idEvento: 145,
-          monto: datosEvento.total,
-          idComprador: "user_comprador_sandbox",
+          idComprador: user.id,
         }),
       });
 
@@ -51,7 +54,11 @@ export default function PaginaDePrueba() {
       if (respuesta.ok && data.preferenceId) {
         setPreferenceId(data.preferenceId);
       } else {
-        alert("Error al obtener la preferencia");
+        const mensajeError = data.detalle
+          ? `${data.error}: ${data.detalle}`
+          : data.error;
+
+        alert(mensajeError ?? "Error al obtener la preferencia");
       }
     } catch (error) {
       console.error(error);

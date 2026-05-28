@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/lib/prisma";
 import { crearPreferenciaPago } from "@/app/lib/mercadopago";
+import { validarApiKey } from "@/app/lib/apiKey";
+import { obtenerRolUsuario, obtenerUsuarioClerk } from "@/app/lib/clerk";
 
 type NuevaTransaccionRequest = {
   idPedido: number;
@@ -13,6 +15,26 @@ type VendedorResponse = {
   idVendedor: string;
 };
 
+const MAX_INT_POSTGRES = 2_147_483_647;
+
+function obtenerMensajeError(error: unknown) {
+  if (error instanceof Error) return error.message;
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof error.message === "string"
+  ) {
+    return error.message;
+  }
+
+  if (error && typeof error === "object") {
+    return JSON.stringify(error);
+  }
+
+  return "Error desconocido";
+}
+
 function esNuevaTransaccionValida(
   body: unknown,
 ): body is NuevaTransaccionRequest {
@@ -21,7 +43,11 @@ function esNuevaTransaccionValida(
   const datos = body as Partial<NuevaTransaccionRequest>;
 
   return (
+    typeof datos.idPedido === "number" &&
     Number.isInteger(datos.idPedido) &&
+    datos.idPedido > 0 &&
+    datos.idPedido <= MAX_INT_POSTGRES &&
+    typeof datos.idEvento === "number" &&
     Number.isInteger(datos.idEvento) &&
     typeof datos.monto === "number" &&
     datos.monto > 0 &&
@@ -32,10 +58,20 @@ function esNuevaTransaccionValida(
 
 async function obtenerIdVendedor(idEvento: number, origen: string) {
   const sellerApiUrl = process.env.SELLER_API_URL ?? `${origen}/api`;
+  const sellerApiKey = process.env.SELLER_API_KEY;
+
+  if (!sellerApiKey) {
+    throw new Error("SELLER_API_KEY no esta definida");
+  }
 
   const response = await fetch(
     `${sellerApiUrl}/seller/eventos/vendedor/${idEvento}`,
-    { method: "GET" },
+    {
+      method: "GET",
+      headers: {
+        "x-api-key": sellerApiKey,
+      },
+    },
   );
 
   if (!response.ok) {
@@ -59,6 +95,37 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Datos de transaccion invalidos" },
         { status: 400 },
+      );
+    }
+
+    const apiKeyValida = process.env.BUYER_API_KEY
+      ? validarApiKey(request, process.env.BUYER_API_KEY)
+      : false;
+
+    if (!apiKeyValida) {
+      return NextResponse.json(
+        { error: "API key invalida" },
+        { status: 401 },
+      );
+    }
+
+    const comprador = await obtenerUsuarioClerk(body.idComprador);
+
+    if (!comprador) {
+      return NextResponse.json(
+        { error: "Comprador inexistente en Clerk" },
+        { status: 404 },
+      );
+    }
+
+    const rolComprador =
+      obtenerRolUsuario(comprador.publicMetadata) ??
+      obtenerRolUsuario(comprador.privateMetadata);
+
+    if (rolComprador !== "buyer") {
+      return NextResponse.json(
+        { error: "El usuario de Clerk no tiene rol buyer" },
+        { status: 403 },
       );
     }
 
@@ -93,6 +160,7 @@ export async function POST(request: Request) {
       idTransaccion: transaccion.id_transaccion,
       idPedido: body.idPedido,
       monto: body.monto,
+      origen,
     });
 
     if (!respuestaPreferencia?.id) {
@@ -121,7 +189,13 @@ export async function POST(request: Request) {
     console.error("Error creando nueva transaccion:", error);
 
     return NextResponse.json(
-      { error: "No se pudo crear la transaccion" },
+      {
+        error: "No se pudo crear la transaccion",
+        detalle:
+          process.env.NODE_ENV === "development"
+            ? obtenerMensajeError(error)
+            : undefined,
+      },
       { status: 500 },
     );
   }

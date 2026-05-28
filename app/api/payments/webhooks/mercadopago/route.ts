@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/app/lib/prisma";
+import { EstadoTransaccion } from "@prisma/client";
+import { notificarEstadoTransaccion } from "@/app/lib/notificaciones";
 
 type PagoMercadoPago = {
   id: number;
@@ -51,14 +53,13 @@ function debeValidarFirmaEstricto() {
 }
 
 function mapearEstadoTransaccion(status: string) {
-  if (status === "approved") return "APROBADA";
-  if (status === "rejected" || status === "cancelled") {
-    return "CANCELADA";
-  }
+  if (status === "approved") return EstadoTransaccion.APROBADA;
+  if (status === "rejected") return EstadoTransaccion.FALLIDA;
+  if (status === "cancelled") return EstadoTransaccion.CANCELADA;
 
-  return "PENDIENTE";
+  return EstadoTransaccion.PENDIENTE;
 }
-
+    
 async function consultarPago(dataId: string): Promise<PagoMercadoPago> {
   const accessToken = process.env.MP_ACCESS_TOKEN;
 
@@ -151,6 +152,17 @@ export async function POST(request: Request) {
         },
       });
     }
+
+    const origen = new URL(request.url).origin;
+
+    await notificarEstadoTransaccion({
+      origen,
+      destinos: ["seller", "shipping"],
+      payload: {
+        idPedido: transaccion.id_pedido,
+        estadoTransaccion: mapearEstadoTransaccion(datosPago.status),
+      },
+    });
 
     console.log(
       `Pago ${dataId} procesado para transaccion ${transaccion.id_transaccion}: ${datosPago.status}`,
