@@ -48,12 +48,18 @@ model Vendedor {
 
 
 model Venta {
-  id_venta       Int         @id @default(autoincrement())
-  fecha_venta    DateTime    @default(now())
+  id_venta              Int         @id @default(autoincrement())
+  fecha_venta           DateTime    @default(now())
 
-  id_transaccion Int         @unique
-  transaccion    Transaccion @relation(fields: [id_transaccion], references: [id_transaccion])
+  id_transaccion        Int         @unique
+  transaccion           Transaccion @relation(fields: [id_transaccion], references: [id_transaccion])
 
-  id_vendedor    String
-  vendedor       Vendedor    @relation(fields: [id_vendedor], references: [id_vendedor])
+  id_vendedor           String
+  vendedor              Vendedor    @relation(fields: [id_vendedor], references: [id_vendedor])
+
+  monto_bruto           Int         @default(0)
+  porcentaje_comision   Decimal     @default(12.00) @db.Decimal(5, 2)
+  monto_comision        Int         @default(0)
+  monto_neto_vendedor   Int         @default(0)
+  moneda                String      @default("ARS")
 }
