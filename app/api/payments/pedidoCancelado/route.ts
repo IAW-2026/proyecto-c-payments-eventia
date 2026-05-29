@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import prisma from "@/app/lib/prisma";
-import { validarApiKey } from "@/app/lib/apiKey";
-import { notificarEstadoTransaccion } from "@/app/lib/notificaciones";
+import prisma from "@/lib/db/prisma";
+import { validarApiKey } from "@/lib/auth/apiKey";
+import { notificarEstadoTransaccion } from "@/lib/payments/notificaciones";
 
 type PedidoCanceladoRequest = {
   idPedido: number;

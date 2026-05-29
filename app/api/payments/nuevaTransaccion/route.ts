@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import prisma from "@/app/lib/prisma";
-import { crearPreferenciaPago } from "@/app/lib/mercadopago";
-import { validarApiKey } from "@/app/lib/apiKey";
-import { obtenerRolUsuario, obtenerUsuarioClerk } from "@/app/lib/clerk";
+import prisma from "@/lib/db/prisma";
+import { crearPreferenciaPago } from "@/lib/payments/mercadopago";
+import { validarApiKey } from "@/lib/auth/apiKey";
+import { obtenerRolUsuario, obtenerUsuarioClerk } from "@/lib/auth/clerk";
 
 type NuevaTransaccionRequest = {
   idPedido: number;

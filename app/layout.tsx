@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider afterSignOutUrl="/home">
       <html
         lang="es"
         className={`${climateCrisis.variable} ${bricolage.variable} ${manrope.variable} h-full antialiased`}

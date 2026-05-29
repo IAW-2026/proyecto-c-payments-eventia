@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import crypto from "crypto";
-import prisma from "@/app/lib/prisma";
+import prisma from "@/lib/db/prisma";
 import { EstadoTransaccion } from "@prisma/client";
-import { notificarEstadoTransaccion } from "@/app/lib/notificaciones";
+import { notificarEstadoTransaccion } from "@/lib/payments/notificaciones";
 
 type PagoMercadoPago = {
   id: number;
