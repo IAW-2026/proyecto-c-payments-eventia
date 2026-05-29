@@ -1,4 +1,6 @@
-import BotonPago from "./BotonDePago";  
+"use client";
+
+import BotonPago from "./BotonDePago";
 
 interface DesgloseProps {
   total: number;
@@ -7,66 +9,71 @@ interface DesgloseProps {
   alIniciarCompra: () => void;
 }
 
-export default function DesgloseCompra({ total, preferenceId, cargando, alIniciarCompra }: DesgloseProps) {
+export default function DesgloseCompra({
+  total,
+  preferenceId,
+  cargando,
+  alIniciarCompra,
+}: DesgloseProps) {
   return (
-    <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-100 shadow-sm w-full flex flex-col justify-between h-fit">
+    <div className="card-retro flex h-fit w-full flex-col justify-between bg-surface-container-lowest">
       <div>
-        <h3 className="font-bold text-lg text-slate-800 tracking-tight mb-6">Resumen de compra</h3>
-        
-        {/* Desglose de precios */}
-        <div className="space-y-3 text-sm pb-5 border-b border-slate-100">
-          <div className="flex justify-between text-slate-500 font-medium">
+        <h3 className="mb-6 font-label text-lg font-black text-on-surface">
+          Resumen de compra
+        </h3>
+
+        <div className="space-y-3 border-b border-primary/10 pb-5 text-sm">
+          <div className="flex justify-between gap-4 font-medium text-on-surface-variant">
             <span>Subtotal</span>
             <span>${total.toLocaleString("es-AR")}</span>
           </div>
-          <div className="flex justify-between text-slate-500 text-xs font-medium">
+          <div className="flex justify-between gap-4 text-xs font-medium text-on-surface-variant">
             <span>Costo de procesamiento</span>
-            <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md font-semibold">
+            <span className="rounded-full bg-secondary-container px-2 py-0.5 font-bold text-on-secondary-container">
               Gratis
             </span>
           </div>
         </div>
 
-        {/* Total Neto */}
-        <div className="flex justify-between items-center pt-5 mb-8">
-          <span className="font-bold text-slate-800 text-base tracking-tight">Total a pagar</span>
-          <span className="text-2xl font-black text-slate-900 tracking-tight">
+        <div className="mb-8 flex items-center justify-between gap-4 pt-5">
+          <span className="font-bold tracking-tight text-on-surface">
+            Total a pagar
+          </span>
+          <span className="text-2xl font-black tracking-tight text-primary">
             ${total.toLocaleString("es-AR")}
           </span>
         </div>
       </div>
 
-      {/* Acciones de Pago */}
       <div className="space-y-4">
         {!preferenceId ? (
           <button
+            type="button"
             onClick={alIniciarCompra}
             disabled={cargando}
-            className="w-full bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-semibold py-3.5 rounded-xl transition-all disabled:opacity-40 text-sm tracking-wide shadow-sm"
+            className="w-full rounded-xl bg-primary-container py-3.5 text-sm font-bold tracking-wide text-background shadow-soft-ambient transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-45"
           >
             {cargando ? "Procesando orden..." : "Continuar con Mercado Pago"}
           </button>
         ) : (
-          <div className="space-y-3 p-4 bg-slate-50/50 rounded-xl border border-slate-100/80">
-            <p className="text-[11px] text-center text-emerald-600 font-bold tracking-wide uppercase">
-              ✨ ¡Orden lista para abonar!
+          <div className="space-y-3 rounded-xl border border-primary/10 bg-surface-container-low p-4">
+            <p className="text-center font-label text-[11px] font-black uppercase tracking-wide text-primary">
+              Orden lista para abonar
             </p>
             <BotonPago preferenceId={preferenceId} />
           </div>
         )}
 
-        {/* Sellos de confianza */}
-        <div className="pt-3 border-t border-slate-50 text-[11px] text-slate-400 font-medium space-y-2 text-center leading-relaxed">
-          <p className="flex items-center justify-center gap-1.5 text-slate-500 font-semibold">
-            🔒 Pago 100% cifrado por Mercado Pago
-          </p>
-          <p className="px-2">
-            Podrás elegir pagar con saldo en cuenta, dinero disponible, transferencia, tarjeta de débito o crédito de manera totalmente directa y protegida.
+        <div className="space-y-2 border-t border-primary/10 pt-3 text-center text-[11px] font-medium leading-relaxed text-on-surface-variant">
+          <p className="font-bold text-on-surface">Pago cifrado por Mercado Pago</p>
+          <p>
+            Vas a poder elegir saldo en cuenta, transferencia, tarjeta de
+            debito o credito de manera directa y protegida.
           </p>
         </div>
       </div>
     </div>
   );
-} 
+}
 
 export type { DesgloseProps };
