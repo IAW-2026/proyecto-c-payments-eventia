@@ -15,13 +15,13 @@ function obtenerValorEnv(nombre: string) {
 function obtenerBackUrls(origen?: string) {
   return {
     success: obtenerValorEnv("NEXT_PUBLIC_BACK_URL_SUCCESS") ?? (
-      origen ? `${origen}/pago-exitoso` : undefined
+      origen ? `${origen}/comprador/pago-exitoso` : undefined
     ),
     failure: obtenerValorEnv("NEXT_PUBLIC_BACK_URL_FAILURE") ?? (
-      origen ? `${origen}/pago-fallido` : undefined
+      origen ? `${origen}/comprador/pago-fallido` : undefined
     ),
     pending: obtenerValorEnv("NEXT_PUBLIC_BACK_URL_PENDING") ?? (
-      origen ? `${origen}/pago-exitoso` : undefined
+      origen ? `${origen}/comprador/pago-pendiente` : undefined
     ),
   };
 }
