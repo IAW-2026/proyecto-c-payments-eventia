@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BuscadorTransacciones from "./BuscadorTransacciones";
 import { crearHrefAdmin } from "../_lib/admin-routes";
 import type {
   EstadoFiltroAdmin,
@@ -28,21 +29,7 @@ export default function FiltrosTransacciones({
   return (
     <>
       <div className="mt-5 grid gap-3 xl:grid-cols-[minmax(220px,1fr)_minmax(220px,280px)]">
-        <form action="/admin" className="relative">
-          <input
-            type="hidden"
-            name="estado"
-            value={query.estado === "todas" ? "" : query.estado}
-          />
-          <input type="hidden" name="vendedor" value={query.vendedor} />
-          <input type="hidden" name="perPage" value={query.perPage} />
-          <input
-            name="search"
-            defaultValue={query.search}
-            placeholder="Buscar por comprador, vendedor o pedido..."
-            className="h-11 w-full rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-          />
-        </form>
+        <BuscadorTransacciones query={query} />
 
         <form action="/admin" className="flex gap-2">
           <input type="hidden" name="search" value={query.search} />

@@ -96,19 +96,21 @@ export async function obtenerDashboardAdmin(
       : { estado_transaccion: estadoPrismaDesdeAdmin(query.estado) }),
     ...crearWhereBusqueda(query.search, vendedoresDb),
   };
-
-  const inicioHoy = new Date();
-  inicioHoy.setHours(0, 0, 0, 0);
+  const whereVentasAprobadas: Prisma.VentaWhereInput = {
+    ...(query.vendedor ? { id_vendedor: query.vendedor } : {}),
+    transaccion: {
+      estado_transaccion: EstadoTransaccion.APROBADA,
+    },
+  };
 
   const [
     total,
     transaccionesDb,
     totalTransaccionesMetricas,
     pagosAprobados,
-    pagosPendientes,
     ventasRegistradas,
-    ventasHoy,
     vendedoresActivos,
+    resumenVentas,
   ] = await Promise.all([
     prisma.transaccion.count({ where: whereTransacciones }),
     prisma.transaccion.findMany({
@@ -124,25 +126,18 @@ export async function obtenerDashboardAdmin(
         estado_transaccion: EstadoTransaccion.APROBADA,
       },
     }),
-    prisma.transaccion.count({
-      where: {
-        ...whereMetricas,
-        estado_transaccion: EstadoTransaccion.PENDIENTE,
-      },
-    }),
-    prisma.venta.count({
-      where: query.vendedor ? { id_vendedor: query.vendedor } : {},
-    }),
-    prisma.venta.count({
-      where: {
-        ...(query.vendedor ? { id_vendedor: query.vendedor } : {}),
-        fecha_venta: { gte: inicioHoy },
-      },
-    }),
+    prisma.venta.count({ where: whereVentasAprobadas }),
     prisma.transaccion.findMany({
       where: whereMetricas,
       distinct: ["id_vendedor"],
       select: { id_vendedor: true },
+    }),
+    prisma.venta.aggregate({
+      where: whereVentasAprobadas,
+      _sum: {
+        monto_bruto: true,
+        monto_comision: true,
+      },
     }),
   ]);
 
@@ -150,6 +145,8 @@ export async function obtenerDashboardAdmin(
     totalTransaccionesMetricas === 0
       ? 0
       : Math.round((pagosAprobados / totalTransaccionesMetricas) * 100);
+  const gananciasTotales = resumenVentas._sum.monto_bruto ?? 0;
+  const gananciaNeta = resumenVentas._sum.monto_comision ?? 0;
 
   return {
     metricas: [
@@ -161,19 +158,19 @@ export async function obtenerDashboardAdmin(
           : "Con transacciones registradas",
       },
       {
-        titulo: "Entradas vendidas",
+        titulo: "Ventas totales",
         valor: String(ventasRegistradas),
-        detalle: `${ventasHoy} ventas hoy`,
+        detalle: "Transacciones aprobadas",
       },
       {
-        titulo: "Pagos aprobados",
-        valor: `${tasaAprobacion}%`,
-        detalle: "Tasa de aprobacion",
+        titulo: "Ganancias totales",
+        valor: formatearMonto(gananciasTotales),
+        detalle: `${tasaAprobacion}% de pagos aprobados`,
       },
       {
-        titulo: "Pagos pendientes",
-        valor: String(pagosPendientes),
-        detalle: "Requieren seguimiento",
+        titulo: "Ganancia neta",
+        valor: formatearMonto(gananciaNeta),
+        detalle: "Comision Eventia del 12%",
       },
     ],
     transacciones: mapearTransaccionesAdmin(transaccionesDb, vendedoresPorId),

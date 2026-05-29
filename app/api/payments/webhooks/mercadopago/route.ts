@@ -3,6 +3,7 @@ import crypto from "crypto";
 import prisma from "@/lib/db/prisma";
 import { EstadoTransaccion } from "@prisma/client";
 import { notificarEstadoTransaccion } from "@/lib/payments/notificaciones";
+import { calcularComisionVenta } from "@/lib/payments/comisiones";
 
 type PagoMercadoPago = {
   id: number;
@@ -143,12 +144,25 @@ export async function POST(request: Request) {
     });
 
     if (datosPago.status === "approved") {
+      const comision = calcularComisionVenta(transaccion.monto);
+
       await prisma.venta.upsert({
         where: { id_transaccion: transaccion.id_transaccion },
-        update: {},
+        update: {
+          monto_bruto: comision.montoBruto,
+          porcentaje_comision: comision.porcentajeComision,
+          monto_comision: comision.montoComision,
+          monto_neto_vendedor: comision.montoNetoVendedor,
+          moneda: transaccion.moneda,
+        },
         create: {
           id_transaccion: transaccion.id_transaccion,
           id_vendedor: transaccion.id_vendedor,
+          monto_bruto: comision.montoBruto,
+          porcentaje_comision: comision.porcentajeComision,
+          monto_comision: comision.montoComision,
+          monto_neto_vendedor: comision.montoNetoVendedor,
+          moneda: transaccion.moneda,
         },
       });
     }
