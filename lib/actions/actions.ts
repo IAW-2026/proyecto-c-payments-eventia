@@ -1,6 +1,6 @@
 'use server';
 
-import { crearPreferenciaPago } from "@/app/lib/mercadopago";
+import { crearPreferenciaPago } from "@/lib/payments/mercadopago";
 
 type DatosCrearPago = {
   idTransaccion: number;

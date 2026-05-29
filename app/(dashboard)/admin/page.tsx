@@ -1,7 +1,7 @@
 import TransaccionesAdmin, {
   EstadoTransaccionAdmin,
   TransaccionAdmin,
-} from "./TransaccionesAdmin";
+} from "./_components/TransaccionesAdmin";
 
 const metricas = [
   { titulo: "Eventos activos", valor: "12", detalle: "3 publicados esta semana" },

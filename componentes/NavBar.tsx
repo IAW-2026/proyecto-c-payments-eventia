@@ -64,7 +64,7 @@ export default function NavBar() {
         <div className="flex min-h-11 items-center justify-end">
           {!esAuth && (
             isSignedIn ? (
-              <UserButton afterSignOutUrl="/home" />
+              <UserButton />
             ) : (
               <Link
                 href="/sign-in"

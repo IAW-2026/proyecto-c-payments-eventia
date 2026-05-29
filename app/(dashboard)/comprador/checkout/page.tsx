@@ -1,5 +1,5 @@
-import CheckoutClient from "./CheckoutClient";
-import ResumenPedido from "@/app/ui/ResumenPedido";
+import CheckoutClient from "./_components/CheckoutClient";
+import ResumenPedido from "@/componentes/ui/ResumenPedido";
 
 const datosEvento = {
   titulo: "Taller de Ceramica",

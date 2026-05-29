@@ -1,8 +1,8 @@
 // app/layout.tsx
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import NavBar from "@/app/ui/NavBar";
-import { bricolage, climateCrisis, manrope } from "@/app/ui/fonts";
+import NavBar from "@/componentes/NavBar";
+import { bricolage, climateCrisis, manrope } from "@/app/fonts";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider afterSignOutUrl="/home">
       <html
         lang="es"
         className={`${climateCrisis.variable} ${bricolage.variable} ${manrope.variable} h-full antialiased`}

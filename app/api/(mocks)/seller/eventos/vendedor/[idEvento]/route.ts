@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { validarApiKey } from "@/app/lib/apiKey";
+import { validarApiKey } from "@/lib/auth/apiKey";
 
 type Params = {
   idEvento: string;

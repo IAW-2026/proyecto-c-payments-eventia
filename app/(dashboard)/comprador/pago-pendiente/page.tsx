@@ -1,4 +1,4 @@
-import ResultadoPago from "../ResultadoPago";
+import ResultadoPago from "../_components/ResultadoPago";
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;

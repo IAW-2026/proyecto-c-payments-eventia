@@ -1,4 +1,4 @@
-import preference from "@/integraciones/mercadopago";
+import preference from "@/lib/payments/mercadopago-client";
 
 type DatosCrearPreferenciaPago = {
   idTransaccion?: number;
