@@ -1,4 +1,4 @@
-import ResultadoPago from "../ResultadoPago";
+import ResultadoPago from "../_components/ResultadoPago";
 
 export default function PagoFallidoPage() {
   return (

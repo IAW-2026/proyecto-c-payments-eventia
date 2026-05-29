@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import DesgloseCompra from "@/app/ui/DesgloseCompra";
+import DesgloseCompra from "@/componentes/ui/DesgloseCompra";
 
 type CheckoutClientProps = {
   total: number;
