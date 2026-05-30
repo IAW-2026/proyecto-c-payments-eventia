@@ -3,15 +3,28 @@
 import { UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { obtenerRolDesdeUsuario } from "@/lib/auth/roles";
 
-const links = [
+const linksBase = [
   { href: "/home", label: "Inicio", icon: "grid" },
-  { href: "/admin", label: "Dashboard", icon: "calendar" },
 ];
 
 export default function NavBar() {
   const pathname = usePathname();
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
+  const rol = obtenerRolDesdeUsuario(user);
+  const links = [
+    ...linksBase,
+    ...(rol === "adminPayments"
+      ? [{ href: "/admin", label: "Dashboard", icon: "calendar" }]
+      : []),
+    ...(rol === "seller"
+      ? [{ href: "/vendedor", label: "Vendedor", icon: "calendar" }]
+      : []),
+    ...(rol === "buyer"
+      ? [{ href: "/comprador", label: "Mis pagos", icon: "calendar" }]
+      : []),
+  ];
   const esAuth = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
   const esHome = pathname === "/" || pathname === "/home";
 

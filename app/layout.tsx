@@ -13,7 +13,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ClerkProvider afterSignOutUrl="/home">
+    <ClerkProvider
+      afterSignOutUrl="/home"
+      appearance={{
+        layout: {
+          hideExternalLinks: true,
+        },
+        elements: {
+          footerAction: { display: "none" },
+        },
+      }}
+    >
       <html
         lang="es"
         className={`${climateCrisis.variable} ${bricolage.variable} ${manrope.variable} h-full antialiased`}
