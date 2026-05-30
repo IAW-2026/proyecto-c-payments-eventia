@@ -125,6 +125,27 @@ export async function POST(request: Request) {
       },
     );
 
+    const tipoContenido = respuestaPayments.headers.get("content-type");
+
+    if (!tipoContenido?.includes("application/json")) {
+      const respuestaTexto = await respuestaPayments.text();
+
+      console.error("Payments no devolvio JSON", {
+        url: `${paymentsApiUrl}/payments/nuevaTransaccion`,
+        status: respuestaPayments.status,
+        contentType: tipoContenido,
+        bodyPreview: respuestaTexto.slice(0, 300),
+      });
+
+      return NextResponse.json(
+        {
+          error: "Payments no devolvio JSON",
+          detalle: `Status ${respuestaPayments.status}. Content-Type: ${tipoContenido ?? "desconocido"}`,
+        },
+        { status: 502 },
+      );
+    }
+
     const data = await respuestaPayments.json();
 
     return NextResponse.json(data, { status: respuestaPayments.status });
