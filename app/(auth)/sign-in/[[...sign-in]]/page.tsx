@@ -20,8 +20,13 @@ export default function Page() {
             <SignIn
               path="/sign-in"
               routing="path"
-              signUpUrl="/sign-up"
-              fallbackRedirectUrl="/admin"
+              signUpUrl={undefined}
+              fallbackRedirectUrl="/post-login"
+              appearance={{
+                elements: {
+                  footerAction: { display: "none" },
+                },
+              }}
             />
           </div>
         </div>

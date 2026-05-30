@@ -35,6 +35,9 @@ model Transaccion {
   creado_en         DateTime          @default(now())
   actualizado_en    DateTime          @updatedAt
   venta             Venta?
+
+  @@index([id_comprador, estado_transaccion, creado_en])
+  @@index([id_vendedor, estado_transaccion, creado_en])
 }
 
 model Vendedor {

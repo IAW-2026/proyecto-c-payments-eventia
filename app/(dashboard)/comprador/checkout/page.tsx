@@ -1,5 +1,6 @@
 import CheckoutClient from "./_components/CheckoutClient";
 import ResumenPedido from "@/componentes/ui/ResumenPedido";
+import { protegerRutaPorRol } from "@/lib/auth/guards";
 
 const datosEvento = {
   titulo: "Taller de Ceramica",
@@ -9,7 +10,9 @@ const datosEvento = {
   total: 5000,
 };
 
-export default function CheckoutCompradorPage() {
+export default async function CheckoutCompradorPage() {
+  await protegerRutaPorRol(["buyer"]);
+
   return (
     <main className="layout-container">
       <section className="mx-auto max-w-5xl">
