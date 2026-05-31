@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 type CrearPedidoMockRequest = {
   idComprador: string;
+  idEvento: number;
 };
 
 type PedidoMock = {
@@ -13,31 +14,16 @@ type PedidoMock = {
 
 type EventoMock = {
   idEvento: number;
-  nombre: string;
-  descripcion: string;
-  fecha: string;
-  ubicacion: string;
-  stock: number;
   precio: number;
 };
 
 const eventosMock: EventoMock[] = [
   {
     idEvento: 1,
-    nombre: "Taller de Ceramica",
-    descripcion: "Clase introductoria de ceramica",
-    fecha: "2025-10-10",
-    ubicacion: "Rosario",
-    stock: 20,
     precio: 5000,
   },
   {
     idEvento: 2,
-    nombre: "Cata de vinos",
-    descripcion: "Degustacion guiada",
-    fecha: "2025-11-02",
-    ubicacion: "Buenos Aires",
-    stock: 15,
     precio: 8000,
   },
 ];
@@ -51,13 +37,15 @@ function esCrearPedidoMockValido(
 
   return (
     typeof datos.idComprador === "string" &&
-    datos.idComprador.trim().length > 0
+    datos.idComprador.trim().length > 0 &&
+    typeof datos.idEvento === "number" &&
+    Number.isInteger(datos.idEvento) &&
+    datos.idEvento > 0
   );
 }
 
-function obtenerEventoMock() {
-  const indiceEvento = Math.floor(Math.random() * eventosMock.length);
-  return eventosMock[indiceEvento];
+function obtenerEventoMock(idEvento: number) {
+  return eventosMock.find((evento) => evento.idEvento === idEvento);
 }
 
 function generarPedidoMock({
@@ -106,7 +94,14 @@ export async function POST(request: Request) {
 
     const origen = new URL(request.url).origin;
     const paymentsApiUrl = obtenerPaymentsApiUrl(origen);
-    const evento = obtenerEventoMock();
+    const evento = obtenerEventoMock(body.idEvento);
+
+    if (!evento) {
+      return NextResponse.json(
+        { error: "Evento mock inexistente" },
+        { status: 404 },
+      );
+    }
 
     const pedido = generarPedidoMock({
       idComprador: body.idComprador,

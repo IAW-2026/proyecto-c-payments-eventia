@@ -12,7 +12,6 @@ const formatoMoneda = new Intl.NumberFormat("es-AR", {
 export default async function CompradorPage() {
   const { user } = await protegerRutaPorRol(["buyer"]);
 
-  const inicioPagosPendientes = performance.now();
   const pagosPendientes = await prisma.transaccion.findMany({
     where: {
       id_comprador: user.id,
@@ -26,12 +25,6 @@ export default async function CompradorPage() {
       monto: true,
     },
   });
-
-  console.log(
-    "pagos pendientes comprador:",
-    Math.round(performance.now() - inicioPagosPendientes),
-    "ms",
-  );
 
   return (
     <main className="layout-container">
