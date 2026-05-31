@@ -226,15 +226,8 @@ export async function POST(request: Request) {
         estadoTransaccion,
       },
     });
-
-    console.log(
-      `Pago ${dataId} procesado para transaccion ${transaccion.id_transaccion}: ${datosPago.status}`,
-    );
-
     return new NextResponse("OK", { status: 200 });
   } catch (error) {
-    console.error("Error procesando el webhook:", error);
-
     return new NextResponse("Error interno procesado", { status: 200 });
   }
 }

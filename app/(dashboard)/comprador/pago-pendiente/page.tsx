@@ -16,14 +16,9 @@ export default async function PagoPendientePage({ searchParams }: PageProps) {
       paymentId={params["payment_id"]}
       acciones={[
         {
-          href: "/comprador/checkout",
-          label: "Volver al checkout",
+          href: "/comprador",
+          label: "Volver a mis pagos",
           variant: "primary",
-        },
-        {
-          href: "/home",
-          label: "Volver al inicio",
-          variant: "secondary",
         },
       ]}
     />

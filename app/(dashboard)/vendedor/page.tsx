@@ -1,12 +1,7 @@
 import { EstadoTransaccion } from "@prisma/client";
 import prisma from "@/lib/db/prisma";
 import { protegerRutaPorRol } from "@/lib/auth/guards";
-
-const formatoMoneda = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: "ARS",
-  maximumFractionDigits: 0,
-});
+import { formatearMonto } from "@/lib/formatters/moneda";
 
 export default async function VendedorPage() {
   const { user } = await protegerRutaPorRol(["seller"]);
@@ -71,9 +66,7 @@ export default async function VendedorPage() {
               Ganancia neta
             </p>
             <strong className="mt-4 block text-headline-md text-primary">
-              {formatoMoneda.format(
-                Number(montoVendido._sum.monto_neto_vendedor ?? 0),
-              )}
+              {formatearMonto(Number(montoVendido._sum.monto_neto_vendedor ?? 0))}
             </strong>
           </article>
         </section>

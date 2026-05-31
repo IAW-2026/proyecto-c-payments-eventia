@@ -9,16 +9,11 @@ export default function PagoFallidoPage() {
       descripcion="Hubo un problema con la transaccion. No te preocupes, ningun cargo fue realizado en tu tarjeta."
       acciones={[
         {
-          href: "/comprador/checkout",
-          label: "Reintentar pago",
+          href: "/comprador",
+          label: "Volver mis pagos",
           variant: "primary",
         },
-        {
-          href: "/home",
-          label: "Volver al inicio",
-          variant: "secondary",
-        },
-      ]}
+        ]}
     />
   );
 }

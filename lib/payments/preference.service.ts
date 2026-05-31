@@ -12,16 +12,20 @@ function obtenerValorEnv(nombre: string) {
   return valor && valor.length > 0 ? valor : undefined;
 }
 
-function obtenerBackUrls(origen?: string) {
+function obtenerAppUrl(origen?: string) {
+  return obtenerValorEnv("APP_URL") ?? origen;
+}
+
+function obtenerBackUrls(appUrl?: string) {
   return {
     success: obtenerValorEnv("NEXT_PUBLIC_BACK_URL_SUCCESS") ?? (
-      origen ? `${origen}/comprador/pago-exitoso` : undefined
+      appUrl ? `${appUrl}/comprador/pago-exitoso` : undefined
     ),
     failure: obtenerValorEnv("NEXT_PUBLIC_BACK_URL_FAILURE") ?? (
-      origen ? `${origen}/comprador/pago-fallido` : undefined
+      appUrl ? `${appUrl}/comprador/pago-fallido` : undefined
     ),
     pending: obtenerValorEnv("NEXT_PUBLIC_BACK_URL_PENDING") ?? (
-      origen ? `${origen}/comprador/pago-pendiente` : undefined
+      appUrl ? `${appUrl}/comprador/pago-pendiente` : undefined
     ),
   };
 }
@@ -34,15 +38,14 @@ export async function crearPreferenciaPago({
 }: DatosCrearPreferenciaPago) {
   const fechaExpiracion = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   const referenciaPago = idTransaccion ? String(idTransaccion) : undefined;
-  const notificationUrl =`${origen}/api/payments/webhooks/mercadopago`;
-  const backUrls = obtenerBackUrls(origen);
-
-  console.log("Webhook de Mercado Pago configurado:", notificationUrl);
-  console.log("Preferencia correspondiente a transaccion:", referenciaPago);
-
+  const appUrl = obtenerAppUrl(origen);
+  const notificationUrl = appUrl
+    ? `${appUrl}/api/payments/webhooks/mercadopago`
+    : undefined;
+  const backUrls = obtenerBackUrls(appUrl);
 
   if (!backUrls.success) {
-    throw new Error("NEXT_PUBLIC_BACK_URL_SUCCESS no esta definida");
+    throw new Error("No se pudo resolver la URL de retorno de Mercado Pago");
   }
 
   const res = await preference.create({
