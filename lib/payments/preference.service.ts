@@ -34,14 +34,12 @@ export async function crearPreferenciaPago({
 }: DatosCrearPreferenciaPago) {
   const fechaExpiracion = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   const referenciaPago = idTransaccion ? String(idTransaccion) : undefined;
-  const notificationUrl = process.env.MP_WEBHOOK_URL ?? (process.env.TUNEL_NGROK
-    ? `${process.env.TUNEL_NGROK}/api/payments/webhooks/mercadopago`
-    : undefined);
+  const notificationUrl =`${origen}/api/payments/webhooks/mercadopago`;
   const backUrls = obtenerBackUrls(origen);
 
   console.log("Webhook de Mercado Pago configurado:", notificationUrl);
   console.log("Preferencia correspondiente a transaccion:", referenciaPago);
-  
+
 
   if (!backUrls.success) {
     throw new Error("NEXT_PUBLIC_BACK_URL_SUCCESS no esta definida");
