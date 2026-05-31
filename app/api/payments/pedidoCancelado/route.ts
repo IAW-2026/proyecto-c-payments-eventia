@@ -2,18 +2,11 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/db/prisma";
 import { validarApiKey } from "@/lib/auth/apiKey";
 import { notificarEstadoTransaccion } from "@/lib/payments/notificaciones";
+import { z } from "zod";
 
-type PedidoCanceladoRequest = {
-  idPedido: number;
-};
-
-function esPedidoCanceladoValido(body: unknown): body is PedidoCanceladoRequest {
-  if (!body || typeof body !== "object") return false;
-
-  const datos = body as Partial<PedidoCanceladoRequest>;
-
-  return Number.isInteger(datos.idPedido);
-}
+const pedidoCanceladoSchema = z.object({
+  idPedido: z.number().int().positive(),
+});
 
 export async function POST(request: Request) {
   try {
@@ -25,16 +18,19 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    const resultado = pedidoCanceladoSchema.safeParse(body);
 
-    if (!esPedidoCanceladoValido(body)) {
+    if (!resultado.success) {
       return NextResponse.json(
         { error: "Datos de pedido cancelado invalidos" },
         { status: 400 },
       );
     }
 
+    const datos = resultado.data;
+
     const transaccionExistente = await prisma.transaccion.findUnique({
-      where: { id_pedido: body.idPedido },
+      where: { id_pedido: datos.idPedido },
     });
 
     if (!transaccionExistente) {
