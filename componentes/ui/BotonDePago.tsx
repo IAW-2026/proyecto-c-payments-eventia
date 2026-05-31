@@ -2,7 +2,7 @@
 
 import { initMercadoPago, Wallet } from '@mercadopago/sdk-react';
 
-// Inicializamos el SDK con la Public Key de tu archivo .env
+
 const publicKey = process.env.NEXT_PUBLIC_MP_PUBLIC_KEY;
 if (publicKey) {
   initMercadoPago(publicKey, { locale: 'es-AR' });

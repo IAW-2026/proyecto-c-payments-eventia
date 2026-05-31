@@ -1,17 +1,16 @@
 import CheckoutClient from "./_components/CheckoutClient";
 import ResumenPedido from "@/componentes/ui/ResumenPedido";
 import { protegerRutaPorRol } from "@/lib/auth/guards";
+import { calcularComisionVenta } from "@/lib/payments/comisiones";
 
 const datosEvento = {
-  titulo: "Taller de Ceramica",
-  fecha: "Sabado, 24 de mayo - 16:00 a 19:00",
-  lugar: "Barrio Italia, Santiago",
-  items: [{ nombre: "Entrada general", cantidad: 1, precio: 5000 }],
+  idEvento: 1,
   total: 5000,
 };
 
 export default async function CheckoutCompradorPage() {
   await protegerRutaPorRol(["buyer"]);
+  const comision = calcularComisionVenta(datosEvento.total);
 
   return (
     <main className="layout-container">
@@ -19,22 +18,26 @@ export default async function CheckoutCompradorPage() {
         <header className="mb-8">
           <span className="chip-retro">Checkout</span>
           <h1 className="mt-5 text-headline-lg-mobile text-on-background md:text-headline-lg">
-            Confirma tu compra
+            Confirma tu pago
           </h1>
           <p className="mt-4 max-w-2xl text-body-md text-on-surface-variant">
-            Revisa el detalle del evento y completa el pago de forma segura.
+            Revise el monto a pagar y complete el pago de forma
+            segura.
           </p>
         </header>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
           <ResumenPedido
-            titulo={datosEvento.titulo}
-            fecha={datosEvento.fecha}
-            lugar={datosEvento.lugar}
-            items={datosEvento.items}
+            idEvento={datosEvento.idEvento}
+            monto={datosEvento.total}
           />
 
-          <CheckoutClient total={datosEvento.total} />
+          <CheckoutClient
+            idEvento={datosEvento.idEvento}
+            comision={comision.montoComision}
+            total={datosEvento.total}
+            totalConComision={comision.montoTotalComprador}
+          />
         </div>
       </section>
     </main>

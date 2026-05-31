@@ -4,6 +4,8 @@ import BotonPago from "./BotonDePago";
 
 interface DesgloseProps {
   total: number;
+  comision: number;
+  totalConComision: number;
   preferenceId: string | null;
   cargando: boolean;
   alIniciarCompra: () => void;
@@ -11,6 +13,8 @@ interface DesgloseProps {
 
 export default function DesgloseCompra({
   total,
+  comision,
+  totalConComision,
   preferenceId,
   cargando,
   alIniciarCompra,
@@ -28,10 +32,12 @@ export default function DesgloseCompra({
             <span>${total.toLocaleString("es-AR")}</span>
           </div>
           <div className="flex justify-between gap-4 text-xs font-medium text-on-surface-variant">
-            <span>Costo de procesamiento</span>
-            <span className="rounded-full bg-secondary-container px-2 py-0.5 font-bold text-on-secondary-container">
-              Gratis
-            </span>
+            <span>Comision Eventia</span>
+            <span>${comision.toLocaleString("es-AR")}</span>
+          </div>
+          <div className="flex justify-between gap-4 text-xs font-medium text-on-surface-variant">
+            <span>Procesamiento Mercado Pago</span>
+            <span>Incluido</span>
           </div>
         </div>
 
@@ -40,7 +46,7 @@ export default function DesgloseCompra({
             Total a pagar
           </span>
           <span className="text-2xl font-black tracking-tight text-primary">
-            ${total.toLocaleString("es-AR")}
+            ${totalConComision.toLocaleString("es-AR")}
           </span>
         </div>
       </div>
@@ -67,8 +73,8 @@ export default function DesgloseCompra({
         <div className="space-y-2 border-t border-primary/10 pt-3 text-center text-[11px] font-medium leading-relaxed text-on-surface-variant">
           <p className="font-bold text-on-surface">Pago cifrado por Mercado Pago</p>
           <p>
-            Vas a poder elegir saldo en cuenta, transferencia, tarjeta de
-            debito o credito de manera directa y protegida.
+            Vas a poder elegir pagar con tu saldo en cuenta, tarjeta de
+            debito o credito.
           </p>
         </div>
       </div>

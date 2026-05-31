@@ -3,18 +3,22 @@
 import { useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import DesgloseCompra from "@/componentes/ui/DesgloseCompra";
+import MensajeErrorCheckout from "./MensajeErrorCheckout";
+import { crearPedidoDemo } from "../_lib/checkout-api";
 
 type CheckoutClientProps = {
+  idEvento: number;
+  comision: number;
   total: number;
+  totalConComision: number;
 };
 
-type CrearPedidoResponse = {
-  preferenceId?: string;
-  error?: string;
-  detalle?: string;
-};
-
-export default function CheckoutClient({ total }: CheckoutClientProps) {
+export default function CheckoutClient({
+  idEvento,
+  comision,
+  total,
+  totalConComision,
+}: CheckoutClientProps) {
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,38 +34,19 @@ export default function CheckoutClient({ total }: CheckoutClientProps) {
         return;
       }
 
-      const respuesta = await fetch("/api/buyer/crearPedidoMock", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          idComprador: user.id,
-        }),
+      const preferenceId = await crearPedidoDemo({
+        idComprador: user.id,
+        idEvento,
       });
 
-      const tipoContenido = respuesta.headers.get("content-type");
-
-      if (!tipoContenido?.includes("application/json")) {
-        setError("El servidor no devolvio una respuesta valida.");
-        return;
-      }
-
-      const data = (await respuesta.json()) as CrearPedidoResponse;
-
-      if (respuesta.ok && data.preferenceId) {
-        setPreferenceId(data.preferenceId);
-        return;
-      }
-
-      setError(
-        data.detalle
-          ? `${data.error}: ${data.detalle}`
-          : data.error ?? "Error al obtener la preferencia.",
-      );
+      setPreferenceId(preferenceId);
     } catch (error) {
       console.error(error);
-      setError("No se pudo iniciar el pago. Intentalo nuevamente.");
+      setError(
+        error instanceof Error
+          ? error.message
+          : "No se pudo iniciar el pago. Intentalo nuevamente.",
+      );
     } finally {
       setCargando(false);
     }
@@ -69,14 +54,12 @@ export default function CheckoutClient({ total }: CheckoutClientProps) {
 
   return (
     <div>
-      {error && (
-        <div className="mb-6 rounded-xl border border-primary/20 bg-secondary-container/40 px-4 py-3 text-sm font-semibold text-primary">
-          {error}
-        </div>
-      )}
+      <MensajeErrorCheckout mensaje={error} />
 
       <DesgloseCompra
         total={total}
+        comision={comision}
+        totalConComision={totalConComision}
         preferenceId={preferenceId}
         cargando={cargando}
         alIniciarCompra={procesarIntencionDePago}

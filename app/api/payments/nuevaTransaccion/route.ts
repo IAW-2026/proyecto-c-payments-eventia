@@ -3,6 +3,7 @@ import prisma from "@/lib/db/prisma";
 import { crearPreferenciaPago } from "@/lib/payments/mercadopago";
 import { validarApiKey } from "@/lib/auth/apiKey";
 import { obtenerRolUsuario, obtenerUsuarioClerk } from "@/lib/auth/clerk";
+import { calcularComisionVenta } from "@/lib/payments/comisiones";
 
 type NuevaTransaccionRequest = {
   idPedido: number;
@@ -131,6 +132,7 @@ export async function POST(request: Request) {
 
     const origen = new URL(request.url).origin;
     const idVendedor = await obtenerIdVendedor(body.idEvento, origen);
+    const comision = calcularComisionVenta(body.monto);
 
     await prisma.vendedor.upsert({
       where: { id_vendedor: idVendedor },
@@ -159,7 +161,7 @@ export async function POST(request: Request) {
     const respuestaPreferencia = await crearPreferenciaPago({
       idTransaccion: transaccion.id_transaccion,
       idPedido: body.idPedido,
-      monto: body.monto,
+      monto: comision.montoTotalComprador,
       origen,
     });
 
