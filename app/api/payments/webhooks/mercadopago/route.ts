@@ -60,6 +60,47 @@ function mapearEstadoTransaccion(status: string) {
 
   return EstadoTransaccion.PENDIENTE;
 }
+
+async function actualizarTransaccionPago({
+  referenciaPago,
+  datosPago,
+}: {
+  referenciaPago: string;
+  datosPago: PagoMercadoPago;
+}) {
+  const estadoTransaccion = mapearEstadoTransaccion(datosPago.status);
+  const idPagoProveedor = String(datosPago.id);
+
+  const resultadoActualizacion = await prisma.transaccion.updateMany({
+    where: {
+      referencia_pago: referenciaPago,
+      NOT: {
+        id_pago_proveedor: idPagoProveedor,
+        estado_proveedor: datosPago.status,
+        estado_transaccion: estadoTransaccion,
+      },
+    },
+    data: {
+      id_pago_proveedor: idPagoProveedor,
+      estado_proveedor: datosPago.status,
+      estado_transaccion: estadoTransaccion,
+    },
+  });
+
+  const transaccion = await prisma.transaccion.findUnique({
+    where: { referencia_pago: referenciaPago },
+  });
+
+  if (!transaccion) {
+    throw new Error("No se encontro la transaccion asociada al pago");
+  }
+
+  return {
+    transaccion,
+    estadoTransaccion,
+    fueActualizada: resultadoActualizacion.count > 0,
+  };
+}
     
 async function consultarPago(dataId: string): Promise<PagoMercadoPago> {
   const accessToken = process.env.MP_ACCESS_TOKEN;
@@ -134,14 +175,22 @@ export async function POST(request: Request) {
       return new NextResponse("Pago sin referencia", { status: 200 });
     }
 
-    const transaccion = await prisma.transaccion.update({
-      where: { referencia_pago: referenciaPago },
-      data: {
-        id_pago_proveedor: String(datosPago.id),
-        estado_proveedor: datosPago.status,
-        estado_transaccion: mapearEstadoTransaccion(datosPago.status),
-      },
+    const {
+      transaccion,
+      estadoTransaccion,
+      fueActualizada,
+    } = await actualizarTransaccionPago({
+      referenciaPago,
+      datosPago,
     });
+
+    if (!fueActualizada) {
+      console.log(
+        `Pago ${dataId} ya procesado para transaccion ${transaccion.id_transaccion}: ${datosPago.status}`,
+      );
+
+      return new NextResponse("OK", { status: 200 });
+    }
 
     if (datosPago.status === "approved") {
       const comision = calcularComisionVenta(transaccion.monto);
@@ -174,18 +223,11 @@ export async function POST(request: Request) {
       destinos: ["seller", "shipping"],
       payload: {
         idPedido: transaccion.id_pedido,
-        estadoTransaccion: mapearEstadoTransaccion(datosPago.status),
+        estadoTransaccion,
       },
     });
-
-    console.log(
-      `Pago ${dataId} procesado para transaccion ${transaccion.id_transaccion}: ${datosPago.status}`,
-    );
-
     return new NextResponse("OK", { status: 200 });
   } catch (error) {
-    console.error("Error procesando el webhook:", error);
-
     return new NextResponse("Error interno procesado", { status: 200 });
   }
 }

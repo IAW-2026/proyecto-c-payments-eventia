@@ -1,5 +1,11 @@
 import { NextResponse } from "next/server";
 import { validarApiKey } from "@/lib/auth/apiKey";
+import { z } from "zod";
+
+const estadoTransaccionSchema = z.object({
+  idPedido: z.number().int().positive(),
+  estadoTransaccion: z.enum(["PENDIENTE", "APROBADA", "FALLIDA", "CANCELADA"]),
+});
 
 export async function POST(request: Request) {
   try {
@@ -11,8 +17,16 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    const resultado = estadoTransaccionSchema.safeParse(body);
 
-    console.log("Shipping mock recibio estado de transaccion:", body);
+    if (!resultado.success) {
+      return NextResponse.json(
+        { error: "Datos de estado invalidos" },
+        { status: 400 },
+      );
+    }
+
+    console.log("Shipping mock recibio estado de transaccion:", resultado.data);
 
     return NextResponse.json(
       {

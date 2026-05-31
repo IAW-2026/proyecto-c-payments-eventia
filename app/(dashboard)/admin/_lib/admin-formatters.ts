@@ -1,5 +1,6 @@
 import { EstadoTransaccion } from "@prisma/client";
 import type { EstadoTransaccionAdmin } from "../types";
+export { formatearMonto } from "@/lib/formatters/moneda";
 
 export function estadoPrismaDesdeAdmin(estado: EstadoTransaccionAdmin) {
   const estados: Record<EstadoTransaccionAdmin, EstadoTransaccion> = {
@@ -23,14 +24,6 @@ export function estadoAdminDesdePrisma(
   };
 
   return estados[estado];
-}
-
-export function formatearMonto(monto: number) {
-  return new Intl.NumberFormat("es-AR", {
-    style: "currency",
-    currency: "ARS",
-    maximumFractionDigits: 0,
-  }).format(monto);
 }
 
 export function formatearFecha(fecha: Date) {

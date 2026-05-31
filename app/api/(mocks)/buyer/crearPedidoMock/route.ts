@@ -1,9 +1,5 @@
 import { NextResponse } from "next/server";
-
-type CrearPedidoMockRequest = {
-  idComprador: string;
-  idEvento: number;
-};
+import { z } from "zod";
 
 type PedidoMock = {
   idPedido: number;
@@ -17,6 +13,11 @@ type EventoMock = {
   precio: number;
 };
 
+const crearPedidoMockSchema = z.object({
+  idComprador: z.string().trim().min(1),
+  idEvento: z.number().int().positive(),
+});
+
 const eventosMock: EventoMock[] = [
   {
     idEvento: 1,
@@ -27,22 +28,6 @@ const eventosMock: EventoMock[] = [
     precio: 8000,
   },
 ];
-
-function esCrearPedidoMockValido(
-  body: unknown,
-): body is CrearPedidoMockRequest {
-  if (!body || typeof body !== "object") return false;
-
-  const datos = body as Partial<CrearPedidoMockRequest>;
-
-  return (
-    typeof datos.idComprador === "string" &&
-    datos.idComprador.trim().length > 0 &&
-    typeof datos.idEvento === "number" &&
-    Number.isInteger(datos.idEvento) &&
-    datos.idEvento > 0
-  );
-}
 
 function obtenerEventoMock(idEvento: number) {
   return eventosMock.find((evento) => evento.idEvento === idEvento);
@@ -78,13 +63,16 @@ function obtenerPaymentsApiUrl(origen: string) {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const resultado = crearPedidoMockSchema.safeParse(body);
 
-    if (!esCrearPedidoMockValido(body)) {
+    if (!resultado.success) {
       return NextResponse.json(
         { error: "Datos de comprador invalidos" },
         { status: 400 },
       );
     }
+
+    const datos = resultado.data;
 
     const buyerApiKey = process.env.BUYER_API_KEY;
 
@@ -94,7 +82,7 @@ export async function POST(request: Request) {
 
     const origen = new URL(request.url).origin;
     const paymentsApiUrl = obtenerPaymentsApiUrl(origen);
-    const evento = obtenerEventoMock(body.idEvento);
+    const evento = obtenerEventoMock(datos.idEvento);
 
     if (!evento) {
       return NextResponse.json(
@@ -104,7 +92,7 @@ export async function POST(request: Request) {
     }
 
     const pedido = generarPedidoMock({
-      idComprador: body.idComprador,
+      idComprador: datos.idComprador,
       evento,
     });
 

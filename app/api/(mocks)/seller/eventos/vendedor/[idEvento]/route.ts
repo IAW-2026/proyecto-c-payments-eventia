@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { validarApiKey } from "@/lib/auth/apiKey";
+import { z } from "zod";
 
 type Params = {
   idEvento: string;
 };
+
+const paramsSchema = z.object({
+  idEvento: z.coerce.number().int().positive(),
+});
 
 export async function GET(
   request: Request,
@@ -16,9 +21,10 @@ export async function GET(
     );
   }
 
-  const { idEvento } = await context.params;
+  const params = await context.params;
+  const resultado = paramsSchema.safeParse(params);
 
-  if (!idEvento || Number.isNaN(Number(idEvento))) {
+  if (!resultado.success) {
     return NextResponse.json(
       { error: "idEvento invalido" },
       { status: 400 },
@@ -27,7 +33,7 @@ export async function GET(
 
   return NextResponse.json(
     {
-      idVendedor: `user_vendedor_evento_${idEvento}`,
+      idVendedor: `user_vendedor_evento_${resultado.data.idEvento}`,
     },
     { status: 200 },
   );

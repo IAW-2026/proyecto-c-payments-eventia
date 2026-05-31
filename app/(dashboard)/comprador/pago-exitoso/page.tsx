@@ -16,8 +16,8 @@ export default async function PagoExitosoPage({ searchParams }: PageProps) {
       paymentId={params["payment_id"]}
       acciones={[
         {
-          href: "/home",
-          label: "Ir a mis eventos",
+          href: "/comprador",
+          label: "Volver a mis pagos",
           variant: "primary",
         },
       ]}

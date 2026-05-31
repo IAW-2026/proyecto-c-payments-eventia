@@ -13,18 +13,18 @@ export default function NavBar() {
   const pathname = usePathname();
   const { isSignedIn, user } = useUser();
   const rol = obtenerRolDesdeUsuario(user);
-  const links = [
-    ...linksBase,
-    ...(rol === "adminPayments"
-      ? [{ href: "/admin", label: "Dashboard", icon: "calendar" }]
-      : []),
-    ...(rol === "seller"
-      ? [{ href: "/vendedor", label: "Vendedor", icon: "calendar" }]
-      : []),
-    ...(rol === "buyer"
+  const links =
+    rol === "buyer"
       ? [{ href: "/comprador", label: "Mis pagos", icon: "calendar" }]
-      : []),
-  ];
+      : [
+          ...linksBase,
+          ...(rol === "adminPayments"
+            ? [{ href: "/admin", label: "Dashboard", icon: "calendar" }]
+            : []),
+          ...(rol === "seller"
+            ? [{ href: "/vendedor", label: "Vendedor", icon: "calendar" }]
+            : []),
+        ];
   const esAuth = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
   const esHome = pathname === "/" || pathname === "/home";
 
