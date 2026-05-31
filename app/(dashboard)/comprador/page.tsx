@@ -98,7 +98,7 @@ export default async function CompradorPage() {
                       Pedido #{transaccion.id_pedido}
                     </p>
                     <p className="mt-1 text-body-md font-semibold text-on-surface">
-                      {formatearMonto(transaccion.monto)}
+                      {formatearMonto(transaccion.montoTotalComprador)}
                     </p>
                   </div>
 
