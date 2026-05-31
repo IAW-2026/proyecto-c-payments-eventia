@@ -1,5 +1,6 @@
 import { EstadoTransaccion } from "@prisma/client";
 import type { EstadoTransaccionAdmin } from "../types";
+export { formatearFecha } from "@/lib/formatters/fecha";
 export { formatearMonto } from "@/lib/formatters/moneda";
 
 export function estadoPrismaDesdeAdmin(estado: EstadoTransaccionAdmin) {
@@ -26,12 +27,3 @@ export function estadoAdminDesdePrisma(
   return estados[estado];
 }
 
-export function formatearFecha(fecha: Date) {
-  return new Intl.DateTimeFormat("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(fecha);
-}
