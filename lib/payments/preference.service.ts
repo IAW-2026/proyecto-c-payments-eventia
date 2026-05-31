@@ -40,6 +40,8 @@ export async function crearPreferenciaPago({
   const backUrls = obtenerBackUrls(origen);
 
   console.log("Webhook de Mercado Pago configurado:", notificationUrl);
+  console.log("Preferencia correspondiente a transaccion:", referenciaPago);
+  
 
   if (!backUrls.success) {
     throw new Error("NEXT_PUBLIC_BACK_URL_SUCCESS no esta definida");
