@@ -9,4 +9,6 @@ if (!accessToken) {
 
 // Agrego credenciales
 const client = new MercadoPagoConfig({ accessToken });
-export default new Preference(client);
+const preference = new Preference(client);
+
+export default preference;

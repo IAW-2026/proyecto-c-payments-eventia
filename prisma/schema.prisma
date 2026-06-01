@@ -62,7 +62,9 @@ model Venta {
 
   monto_bruto           Int         @default(0)
   porcentaje_comision   Decimal     @default(12.00) @db.Decimal(5, 2)
-  monto_comision        Int         @default(0)
-  monto_neto_vendedor   Int         @default(0)
-  moneda                String      @default("ARS")
-}
+    monto_comision        Int         @default(0)
+    monto_neto_vendedor   Int         @default(0)
+    moneda                String      @default("ARS")
+
+    @@index([id_vendedor, fecha_venta])
+  }

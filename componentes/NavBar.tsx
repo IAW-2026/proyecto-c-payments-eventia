@@ -5,26 +5,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { obtenerRolDesdeUsuario } from "@/lib/auth/roles";
 
-const linksBase = [
-  { href: "/home", label: "Inicio", icon: "grid" },
-];
-
 export default function NavBar() {
   const pathname = usePathname();
   const { isSignedIn, user } = useUser();
   const rol = obtenerRolDesdeUsuario(user);
-  const links =
-    rol === "buyer"
+  const links = [
+    ...(rol === "adminPayments"
+      ? [{ href: "/admin", label: "Dashboard", icon: "calendar" }]
+      : []),
+    ...(rol === "seller"
+      ? [{ href: "/vendedor", label: "Vendedor", icon: "calendar" }]
+      : []),
+    ...(rol === "buyer"
       ? [{ href: "/comprador", label: "Mis pagos", icon: "calendar" }]
-      : [
-          ...linksBase,
-          ...(rol === "adminPayments"
-            ? [{ href: "/admin", label: "Dashboard", icon: "calendar" }]
-            : []),
-          ...(rol === "seller"
-            ? [{ href: "/vendedor", label: "Vendedor", icon: "calendar" }]
-            : []),
-        ];
+      : []),
+  ];
   const esAuth = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
   const esHome = pathname === "/" || pathname === "/home";
 
@@ -61,11 +56,7 @@ export default function NavBar() {
                 }`}
               >
                 <span
-                  className={`relative inline-block h-[18px] w-[18px] shrink-0 ${
-                    link.icon === "grid"
-                      ? "bg-[linear-gradient(currentColor_0_0),linear-gradient(currentColor_0_0),linear-gradient(currentColor_0_0),linear-gradient(currentColor_0_0)] bg-[length:6px_6px,6px_6px,6px_6px,6px_6px] bg-[position:1px_1px,11px_1px,1px_11px,11px_11px] bg-no-repeat"
-                      : "rounded border-2 border-current before:absolute before:left-0.5 before:right-0.5 before:top-[5px] before:border-t-2 before:border-current after:absolute after:-top-[5px] after:left-1 after:h-1.5 after:w-2 after:border-x-2 after:border-current"
-                  }`}
+                  className="relative inline-block h-[18px] w-[18px] shrink-0 rounded border-2 border-current before:absolute before:left-0.5 before:right-0.5 before:top-[5px] before:border-t-2 before:border-current after:absolute after:-top-[5px] after:left-1 after:h-1.5 after:w-2 after:border-x-2 after:border-current"
                   aria-hidden="true"
                 />
                 {link.label}

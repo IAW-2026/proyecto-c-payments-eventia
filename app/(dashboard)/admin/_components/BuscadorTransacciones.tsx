@@ -17,10 +17,6 @@ export default function BuscadorTransacciones({
   const [search, setSearch] = useState(query.search);
 
   useEffect(() => {
-    setSearch(query.search);
-  }, [query.search]);
-
-  useEffect(() => {
     const timeout = window.setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
       const valor = search.trim();
@@ -60,7 +56,7 @@ export default function BuscadorTransacciones({
         name="search"
         value={search}
         onChange={(event) => setSearch(event.target.value)}
-        placeholder="Buscar por comprador, vendedor o pedido..."
+        placeholder="Buscar por ID comprador, vendedor o pedido..."
         className="h-11 w-full rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
       />
     </form>

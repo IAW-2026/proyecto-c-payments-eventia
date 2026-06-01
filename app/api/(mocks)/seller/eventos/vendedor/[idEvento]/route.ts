@@ -10,6 +10,10 @@ const paramsSchema = z.object({
   idEvento: z.coerce.number().int().positive(),
 });
 
+function obtenerIdVendedorMock(idEvento: number) {
+  return process.env.SELLER_DEMO_USER_ID ?? `user_vendedor_evento_${idEvento}`;
+}
+
 export async function GET(
   request: Request,
   context: { params: Promise<Params> },
@@ -33,7 +37,7 @@ export async function GET(
 
   return NextResponse.json(
     {
-      idVendedor: `user_vendedor_evento_${resultado.data.idEvento}`,
+      idVendedor: obtenerIdVendedorMock(resultado.data.idEvento),
     },
     { status: 200 },
   );

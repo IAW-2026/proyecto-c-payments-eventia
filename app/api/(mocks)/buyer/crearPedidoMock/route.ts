@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { obtenerBuyerApiKey, obtenerPaymentsApiUrl } from "../_lib/payments-api";
 
 type PedidoMock = {
   idPedido: number;
@@ -48,18 +49,6 @@ function generarPedidoMock({
   };
 }
 
-function obtenerPaymentsApiUrl(origen: string) {
-  if (process.env.PAYMENTS_API_URL) {
-    return process.env.PAYMENTS_API_URL;
-  }
-
-  if (process.env.NODE_ENV === "development") {
-    return "http://localhost:3000/api";
-  }
-
-  return `${origen}/api`;
-}
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -74,11 +63,7 @@ export async function POST(request: Request) {
 
     const datos = resultado.data;
 
-    const buyerApiKey = process.env.BUYER_API_KEY;
-
-    if (!buyerApiKey) {
-      throw new Error("BUYER_API_KEY no esta definida");
-    }
+    const buyerApiKey = obtenerBuyerApiKey();
 
     const origen = new URL(request.url).origin;
     const paymentsApiUrl = obtenerPaymentsApiUrl(origen);
