@@ -21,7 +21,7 @@ export default function NavBar() {
       : []),
   ];
   const esAuth = pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up");
-  const esHome = pathname === "/" || pathname === "/home";
+  const esHome = pathname === "/";
 
   if (esHome) {
     return null;
@@ -31,7 +31,7 @@ export default function NavBar() {
     <header className="sticky top-0 z-50 border-b border-primary/15 bg-background/95 backdrop-blur-md">
       <div className="grid min-h-20 grid-cols-[minmax(120px,1fr)_auto_minmax(120px,1fr)] items-center gap-6 px-mobile-padding md:px-desktop-padding">
         <Link
-          href="/home"
+          href="/"
           className="font-label text-3xl font-black text-primary no-underline"
         >
           Eventia

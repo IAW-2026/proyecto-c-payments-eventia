@@ -1,51 +1,45 @@
 # Eventia - Payments App
 
-Aplicación web desarrollada con Next.js y App Router.
+## Deploy de produccion
 
-## Tecnologías
+https://proyecto-c-payments-eventia.vercel.app
 
-- Next.js
-- React
-- TypeScript
-- Tailwind CSS
+## Usuarios de prueba
 
-## Metodología:
-- Git Flow
-- Pull Requests
-- Releases con tags
+Todos los usuarios usan la misma contrasena:
 
-## Desarrollo
-
-Para ejecutar el proyecto localmente:
-
-```bash
-npm run dev 
+```txt
+iawuser#
 ```
 
-## Base de Datos
+| Rol | Email |
+| --- | --- |
+| Administrador | adminpayments+clerktest@iaw.com |
+| Vendedor | seller+clerktest@iaw.com |
+| Comprador | buyer+clerktest@iaw.com |
 
-El módulo de **Payments** utiliza una base de datos PostgreSQL hospedada en **Neon** y gestionada a través de **Prisma ORM**. El diseño está orientado a procesar cobros de terceros (vendedores) y mantener un historial de transacciones vinculado a la **Buyer App**.
+## Instrucciones de uso
 
-### Entidad Relación 
+- Iniciar sesion con alguno de los usuarios de prueba.
+- El administrador puede ver metricas, buscar, filtrar y paginar transacciones desde `/admin`.
+- El vendedor puede consultar sus transacciones, filtrar por estado y ver montos a acreditar desde `/vendedor`.
+- El comprador puede iniciar un checkout de prueba desde `/comprador/checkout`.
+- Para correr localmente, copiar `.env.example` como `.env` y completar las credenciales necesarias.
+- La app usa Mercado Pago en modo sandbox. Para pagos aprobados, el webhook actualiza la transaccion y registra la venta.
+- En el panel administrador se puede simular una cancelacion de Buyer ingresando el `idPedido` de una transaccion aprobada.
 
-La base de datos se compone de tres tablas principales:
+## Descripcion del proyecto
 
-1.  **Vendedor**: Almacena la información de los organizadores.
-2.  **Transaccion**: Registra cada intento de pago. Se vincula con el resto de las apps mediante el campo `id_pedido`.
-3.  **Venta**: Registro consolidado de los pagos aprobados. Una transacción exitosa genera una venta única.
+Eventia Payments App es el modulo encargado de gestionar pagos dentro del ecosistema Eventia. La aplicacion recibe solicitudes de compra desde Buyer, crea transacciones, genera preferencias de pago con Mercado Pago y actualiza el estado final mediante webhooks.
 
+La app cuenta con base de datos PostgreSQL propia gestionada con Prisma. Registra transacciones, vendedores y ventas aprobadas, manteniendo el historial aun cuando una compra se cancela.
 
+Tambien expone endpoints REST pensados para la integracion con otras apps del proyecto, incluyendo mocks de Buyer, Seller y Shipping para poder probar el flujo completo durante esta etapa.
 
-### 🚀 Comandos de Prisma
+## Notas para la correccion
 
-Si realizas cambios en el esquema o necesitas sincronizar la base de datos localmente, utiliza los siguientes comandos:
-
-* **Sincronizar cambios (Migraciones):**
-    ```bash
-    npx prisma migrate dev --name <nombre_del_cambio>
-    ```
-* **Abrir el explorador de base de datos (Visual):**
-    ```bash
-    npx prisma studio
-    ```
-
+- La base de datos de produccion contiene datos precargados para evaluar paneles, filtros, paginacion, metricas y estados de transaccion.
+- Los roles se gestionan con Clerk. El rol interno del administrador es `adminPayments`.
+- Las credenciales de Mercado Pago son de sandbox.
+- En sandbox, Mercado Pago puede dejar algunos pagos de prueba como pendientes aunque se usen tarjetas/codigos esperados para rechazo. La app procesa `approved`, `rejected`, `cancelled` y estados pendientes segun lo informado por Mercado Pago.
+- Las cancelaciones solo se permiten sobre transacciones aprobadas. No se elimina la venta; se conserva el registro historico y las metricas consideran solo transacciones aprobadas.
