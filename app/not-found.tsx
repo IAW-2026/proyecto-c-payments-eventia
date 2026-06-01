@@ -8,7 +8,7 @@ export default function NotFound() {
       titulo="No encontramos esta pagina"
       descripcion="La direccion puede estar incompleta, haber cambiado o no pertenecer a una seccion disponible de Eventia."
       accionPrimaria={{
-        href: "/home",
+        href: "/",
         label: "Volver al inicio",
       }}
     />

@@ -10,7 +10,6 @@ export type TransaccionVendedor = {
   pedido: string;
   comprador: string;
   montoComprador: string;
-  comisionEventia: string;
   netoVendedor: string;
   estado: EstadoTransaccion;
   fecha: string;

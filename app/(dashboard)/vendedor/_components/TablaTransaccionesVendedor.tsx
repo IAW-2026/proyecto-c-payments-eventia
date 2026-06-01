@@ -39,9 +39,8 @@ export default function TablaTransaccionesVendedor({
             <tr className="border-b border-slate-200 bg-slate-50/80 text-left text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">
               <th className="px-5 py-4">Pedido</th>
               <th className="px-5 py-4">Comprador</th>
-              <th className="px-5 py-4">Pago comprador</th>
-              <th className="px-5 py-4">Comision Eventia</th>
-              <th className="px-5 py-4">Neto vendedor</th>
+              <th className="px-5 py-4">Total cobrado</th>
+              <th className="px-5 py-4">A acreditar</th>
               <th className="px-5 py-4">Estado</th>
               <th className="px-5 py-4">Fecha</th>
             </tr>
@@ -50,7 +49,7 @@ export default function TablaTransaccionesVendedor({
             {transacciones.length === 0 ? (
               <tr>
                 <td
-                  colSpan={7}
+                  colSpan={6}
                   className="px-5 py-10 text-center text-sm font-semibold text-slate-500"
                 >
                   Todavia no hay transacciones asociadas a tu usuario.
@@ -70,9 +69,6 @@ export default function TablaTransaccionesVendedor({
                   </td>
                   <td className="px-5 py-4 font-black text-slate-950">
                     {transaccion.montoComprador}
-                  </td>
-                  <td className="px-5 py-4 font-semibold text-slate-700">
-                    {transaccion.comisionEventia}
                   </td>
                   <td className="px-5 py-4 font-black text-primary">
                     {transaccion.netoVendedor}

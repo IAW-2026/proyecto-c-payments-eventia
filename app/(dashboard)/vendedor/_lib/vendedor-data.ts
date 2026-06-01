@@ -25,7 +25,6 @@ function consultarUltimasTransaccionesVendedor(idVendedor: string) {
       venta: {
         select: {
           monto_bruto: true,
-          monto_comision: true,
           monto_neto_vendedor: true,
         },
       },
@@ -39,8 +38,6 @@ function obtenerSnapshotFinanciero(transaccion: TransaccionVendedorDb) {
   return {
     montoComprador:
       transaccion.venta?.monto_bruto ?? snapshotCalculado.montoTotalComprador,
-    comisionEventia:
-      transaccion.venta?.monto_comision ?? snapshotCalculado.montoComision,
     netoVendedor:
       transaccion.venta?.monto_neto_vendedor ??
       snapshotCalculado.montoNetoVendedor,
@@ -56,7 +53,6 @@ function mapearTransaccionVendedor(
     pedido: `#${transaccion.id_pedido}`,
     comprador: transaccion.id_comprador,
     montoComprador: formatearMonto(snapshot.montoComprador),
-    comisionEventia: formatearMonto(snapshot.comisionEventia),
     netoVendedor: formatearMonto(snapshot.netoVendedor),
     estado: transaccion.estado_transaccion,
     fecha: formatearFecha(transaccion.creado_en),
@@ -85,14 +81,14 @@ export async function obtenerDashboardVendedor(
       where: whereVentasAprobadas,
       _sum: {
         monto_neto_vendedor: true,
-        monto_comision: true,
       },
     }),
     consultarUltimasTransaccionesVendedor(idVendedor),
   ]);
 
   const netoAcreditar = resumenAcreditaciones._sum.monto_neto_vendedor ?? 0;
-  const comisionesEventia = resumenAcreditaciones._sum.monto_comision ?? 0;
+  const promedioPorVenta =
+    ventasAprobadas === 0 ? 0 : Math.round(netoAcreditar / ventasAprobadas);
 
   return {
     metricas: [
@@ -107,9 +103,9 @@ export async function obtenerDashboardVendedor(
         detalle: "Importe correspondiente al vendedor",
       },
       {
-        titulo: "Comisiones Eventia",
-        valor: formatearMonto(comisionesEventia),
-        detalle: "Comision retenida por la plataforma",
+        titulo: "Promedio por venta",
+        valor: formatearMonto(promedioPorVenta),
+        detalle: "Ticket neto promedio",
       },
     ],
     transacciones: ultimasTransacciones.map(mapearTransaccionVendedor),

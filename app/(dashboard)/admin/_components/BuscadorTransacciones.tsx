@@ -17,10 +17,6 @@ export default function BuscadorTransacciones({
   const [search, setSearch] = useState(query.search);
 
   useEffect(() => {
-    setSearch(query.search);
-  }, [query.search]);
-
-  useEffect(() => {
     const timeout = window.setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
       const valor = search.trim();
