@@ -8,9 +8,9 @@ https://proyecto-c-payments-eventia.vercel.app
 
 | Rol | Email |
 | --- | --- |
-| Administrador | adminpayments+clerktest@iaw.com |
-| Vendedor | seller+clerktest@iaw.com |
-| Comprador | buyer+clerktest@iaw.com |
+| Administrador | admin+clerk_test@iaw.com |
+| Vendedor | seller+clerk_test@iaw.com |
+| Comprador | buyer+clerk_test@iaw.com|
 
 Todos los usuarios usan la misma contraseña:
 
