@@ -33,7 +33,7 @@ export async function protegerRutaPorRol(rolesPermitidos: RolUsuario[]) {
   }
 
   if (!sesion.rol || !rolesPermitidos.includes(sesion.rol)) {
-    redirect("/home");
+    redirect("/);
   }
 
   return sesion as typeof sesion & {
