@@ -18,10 +18,14 @@ export default function PaginacionTransaccionesVendedor({
       <p className="text-sm font-medium text-slate-500">
         Pagina {query.page} de {totalPaginas}
       </p>
-      <nav className="flex flex-wrap items-center gap-2" aria-label="Paginacion">
+      <nav
+        className="flex flex-wrap items-center gap-2"
+        aria-label="Paginacion de transacciones"
+      >
         <Link
-          href={crearHrefVendedor(query, { page: query.page - 1 })}
+          href={crearHrefVendedor(query, { page: Math.max(1, query.page - 1) })}
           aria-disabled={query.page === 1}
+          tabIndex={query.page === 1 ? -1 : undefined}
           className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
             query.page === 1
               ? "pointer-events-none border-slate-100 text-slate-300"
@@ -34,6 +38,8 @@ export default function PaginacionTransaccionesVendedor({
           <Link
             key={pagina}
             href={crearHrefVendedor(query, { page: pagina })}
+            aria-current={pagina === query.page ? "page" : undefined}
+            aria-label={`Ir a pagina ${pagina}`}
             className={`flex h-9 w-9 items-center justify-center rounded-md text-sm font-black transition ${
               pagina === query.page
                 ? "bg-primary text-white"
@@ -48,6 +54,7 @@ export default function PaginacionTransaccionesVendedor({
             page: Math.min(totalPaginas, query.page + 1),
           })}
           aria-disabled={query.page === totalPaginas}
+          tabIndex={query.page === totalPaginas ? -1 : undefined}
           className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
             query.page === totalPaginas
               ? "pointer-events-none border-slate-100 text-slate-300"
