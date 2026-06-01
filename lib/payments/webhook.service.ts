@@ -211,6 +211,8 @@ async function crearVentaAprobada({
 export async function procesarWebhookMercadoPago(
   request: Request,
 ): Promise<RespuestaWebhook> {
+  console.log("Webhook Mercado Pago recibido en:", request.url);
+
   const { dataId, type } = obtenerDataId(request.url);
 
   if (!dataId || type !== "payment") {

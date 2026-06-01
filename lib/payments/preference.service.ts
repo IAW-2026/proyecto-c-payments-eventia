@@ -44,6 +44,8 @@ export async function crearPreferenciaPago({
     : undefined;
   const backUrls = obtenerBackUrls(appUrl);
 
+  console.log("Mercado Pago notification_url configurada:", notificationUrl);
+
   if (!backUrls.success) {
     throw new Error("No se pudo resolver la URL de retorno de Mercado Pago");
   }
