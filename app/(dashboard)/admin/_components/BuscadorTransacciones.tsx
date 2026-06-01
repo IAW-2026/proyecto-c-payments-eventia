@@ -45,9 +45,6 @@ export default function BuscadorTransacciones({
 
   return (
     <form action="/admin" className="relative">
-      <label htmlFor="buscar-transacciones-admin" className="sr-only">
-        Buscar transacciones
-      </label>
       <input
         type="hidden"
         name="estado"
@@ -56,7 +53,6 @@ export default function BuscadorTransacciones({
       <input type="hidden" name="vendedor" value={query.vendedor} />
       <input type="hidden" name="perPage" value={query.perPage} />
       <input
-        id="buscar-transacciones-admin"
         name="search"
         value={search}
         onChange={(event) => setSearch(event.target.value)}

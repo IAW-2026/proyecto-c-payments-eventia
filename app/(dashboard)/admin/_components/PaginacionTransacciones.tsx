@@ -18,14 +18,10 @@ export default function PaginacionTransacciones({
       <p className="text-sm font-medium text-slate-500">
         Pagina {query.page} de {totalPaginas}
       </p>
-      <nav
-        className="flex flex-wrap items-center gap-2"
-        aria-label="Paginacion de transacciones"
-      >
+      <nav className="flex flex-wrap items-center gap-2" aria-label="Paginacion">
         <Link
           href={crearHrefAdmin(query, { page: Math.max(1, query.page - 1) })}
           aria-disabled={query.page === 1}
-          tabIndex={query.page === 1 ? -1 : undefined}
           className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
             query.page === 1
               ? "pointer-events-none border-slate-100 text-slate-300"
@@ -38,8 +34,6 @@ export default function PaginacionTransacciones({
           <Link
             key={pagina}
             href={crearHrefAdmin(query, { page: pagina })}
-            aria-current={pagina === query.page ? "page" : undefined}
-            aria-label={`Ir a pagina ${pagina}`}
             className={`flex h-9 w-9 items-center justify-center rounded-md text-sm font-black transition ${
               pagina === query.page
                 ? "bg-blue-600 text-white"
@@ -54,7 +48,6 @@ export default function PaginacionTransacciones({
             page: Math.min(totalPaginas, query.page + 1),
           })}
           aria-disabled={query.page === totalPaginas}
-          tabIndex={query.page === totalPaginas ? -1 : undefined}
           className={`rounded-md border px-3 py-2 text-sm font-bold transition ${
             query.page === totalPaginas
               ? "pointer-events-none border-slate-100 text-slate-300"

@@ -11,13 +11,7 @@ import {
   formatearMonto,
 } from "./admin-formatters";
 
-type VendedorDb = Prisma.VendedorGetPayload<{
-  select: {
-    id_vendedor: true;
-    nombre: true;
-    email: true;
-  };
-}>;
+type VendedorDb = Awaited<ReturnType<typeof prisma.vendedor.findMany>>[number];
 type TransaccionAdminDb = Prisma.TransaccionGetPayload<{
   include: {
     venta: {
@@ -95,11 +89,6 @@ export async function obtenerDashboardAdmin(
 
   const vendedoresDb = await prisma.vendedor.findMany({
     orderBy: { creado_en: "desc" },
-    select: {
-      id_vendedor: true,
-      nombre: true,
-      email: true,
-    },
   });
 
   const vendedores = vendedoresDb.map((vendedor) => ({

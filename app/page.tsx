@@ -27,7 +27,7 @@ export default function HomePage() {
         <figure className="col-span-4 mt-10 md:col-span-6 md:mt-0">
           <div className="relative min-h-[360px] overflow-hidden rounded-xl border border-primary/15 shadow-soft-ambient md:min-h-[calc(100vh-8rem)]">
             <Image
-              src="/eventia-home.jpeg"
+              src="/eventia-home.jpg"
               alt="Personas disfrutando un evento de Eventia"
               fill
               priority

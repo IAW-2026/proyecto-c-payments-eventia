@@ -13,26 +13,19 @@ export function obtenerRolUsuario(metadata: unknown): RolUsuario | null {
     rol?: unknown;
     role?: unknown;
     roles?: unknown;
-    rolesAdmin?: unknown;
   };
   const rol = datos.rol ?? datos.role;
-  if (
-    Array.isArray(datos.rolesAdmin) &&
-    datos.rolesAdmin.includes("adminPayments")
-  ) {
-    return "adminPayments";
-  }
-  else if (rol === "seller" || rol === "buyer") {
+
+  if (rol === "adminPayments" || rol === "seller" || rol === "buyer") {
     return rol;
   }
-
-  
 
   if (Array.isArray(datos.roles)) {
     const rolEnLista = datos.roles.find(
       (item): item is RolUsuario =>
-        item === "seller" || item === "buyer",
+        item === "adminPayments" || item === "seller" || item === "buyer",
     );
+
     return rolEnLista ?? null;
   }
 
@@ -75,5 +68,5 @@ export function obtenerRutaPorRol(rol: RolUsuario | null) {
   if (rol === "seller") return "/vendedor";
   if (rol === "buyer") return "/comprador";
 
-  return "/";
+  return "/home";
 }

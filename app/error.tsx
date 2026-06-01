@@ -20,7 +20,7 @@ export default function Error({
       titulo="Algo no salio como esperabamos"
       descripcion="La operacion no pudo completarse. Podes intentar nuevamente o volver al inicio."
       accionPrimaria={{
-        href: "/",
+        href: "/home",
         label: "Volver al inicio",
       }}
     >

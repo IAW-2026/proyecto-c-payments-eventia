@@ -44,14 +44,12 @@ export default function AccionesRapidasAdmin() {
           type="submit"
           className="btn-retro-secondary text-left disabled:cursor-not-allowed disabled:opacity-60"
           disabled={pendiente}
-          aria-busy={pendiente}
         >
           {pendiente ? "Cancelando..." : "Cancelar pedido por API"}
         </button>
 
         {estado.mensaje ? (
           <p
-            aria-live="polite"
             className={`text-sm font-bold ${
               estado.tipo === "exito" ? "text-emerald-700" : "text-rose-700"
             }`}
