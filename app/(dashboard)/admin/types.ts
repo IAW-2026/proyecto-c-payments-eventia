@@ -21,7 +21,7 @@ export type VendedorAdmin = {
 
 export type TransaccionAdmin = {
   pedido: string;
-  comprador: string;
+  idComprador: string;
   vendedor: string;
   monto: string;
   estado: EstadoTransaccionAdmin;

@@ -22,6 +22,12 @@ const estados: { label: string; value: EstadoFiltroAdmin }[] = [
 
 const perPageOptions = [10, 25, 50];
 
+function abreviarId(value: string) {
+  if (value.length <= 18) return value;
+
+  return `${value.slice(0, 10)}...${value.slice(-4)}`;
+}
+
 export default function FiltrosTransacciones({
   query,
   vendedores,
@@ -44,10 +50,10 @@ export default function FiltrosTransacciones({
             defaultValue={query.vendedor}
             className="h-11 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
           >
-            <option value="">Todos los vendedores</option>
+            <option value="">Todos los IDs de vendedor</option>
             {vendedores.map((vendedor) => (
               <option key={vendedor.id} value={vendedor.id}>
-                {vendedor.nombre}
+                {abreviarId(vendedor.id)}
               </option>
             ))}
           </select>

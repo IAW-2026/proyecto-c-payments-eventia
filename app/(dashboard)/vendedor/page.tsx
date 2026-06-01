@@ -1,10 +1,15 @@
 import { protegerRutaPorRol } from "@/lib/auth/guards";
 import PanelVendedor from "./_components/PanelVendedor";
 import { obtenerDashboardVendedor } from "./_lib/vendedor-data";
+import type { VendedorSearchParams } from "./_lib/vendedor-filters";
 
-export default async function VendedorPage() {
+type VendedorPageProps = {
+  searchParams: Promise<VendedorSearchParams>;
+};
+
+export default async function VendedorPage({ searchParams }: VendedorPageProps) {
   const { user } = await protegerRutaPorRol(["seller"]);
-  const dashboard = await obtenerDashboardVendedor(user.id);
+  const dashboard = await obtenerDashboardVendedor(user.id, await searchParams);
 
   return (
     <main className="layout-container">

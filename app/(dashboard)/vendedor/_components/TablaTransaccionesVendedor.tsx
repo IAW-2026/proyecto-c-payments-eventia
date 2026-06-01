@@ -1,8 +1,11 @@
 import { EstadoTransaccion } from "@prisma/client";
-import type { TransaccionVendedor } from "../types";
+import FiltrosTransaccionesVendedor from "./FiltrosTransaccionesVendedor";
+import type { QueryVendedor, TransaccionVendedor } from "../types";
 
 type TablaTransaccionesVendedorProps = {
   transacciones: TransaccionVendedor[];
+  query: QueryVendedor;
+  total: number;
 };
 
 const estadoClases: Record<EstadoTransaccion, string> = {
@@ -19,18 +22,36 @@ const estadoEtiquetas: Record<EstadoTransaccion, string> = {
   CANCELADA: "Cancelada",
 };
 
+function abreviarId(value: string) {
+  if (value.length <= 18) return value;
+
+  return `${value.slice(0, 10)}...${value.slice(-4)}`;
+}
+
 export default function TablaTransaccionesVendedor({
   transacciones,
+  query,
+  total,
 }: TablaTransaccionesVendedorProps) {
+  const desde = total === 0 ? 0 : (query.page - 1) * query.perPage + 1;
+  const hasta = Math.min(query.page * query.perPage, total);
+
   return (
     <article className="rounded-lg border border-primary/15 bg-surface-container-lowest/70 shadow-soft-ambient">
       <div className="border-b border-primary/10 p-5">
-        <h2 className="text-title-lg text-on-background">
-          Ultimas transacciones
-        </h2>
-        <p className="mt-2 text-body-md text-on-surface-variant">
-          Historial financiero asociado a tu usuario vendedor.
-        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 className="text-title-lg text-on-background">Transacciones</h2>
+            <p className="mt-2 text-body-md text-on-surface-variant">
+              Historial financiero asociado a tu usuario vendedor.
+            </p>
+          </div>
+          <p className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600 ring-1 ring-slate-200">
+            Mostrando {desde}-{hasta} de {total}
+          </p>
+        </div>
+
+        <FiltrosTransaccionesVendedor query={query} />
       </div>
 
       <div className="overflow-x-auto">
@@ -38,7 +59,7 @@ export default function TablaTransaccionesVendedor({
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50/80 text-left text-[11px] font-black uppercase tracking-[0.16em] text-slate-500">
               <th className="px-5 py-4">Pedido</th>
-              <th className="px-5 py-4">Comprador</th>
+              <th className="px-5 py-4">ID comprador</th>
               <th className="px-5 py-4">Total cobrado</th>
               <th className="px-5 py-4">A acreditar</th>
               <th className="px-5 py-4">Estado</th>
@@ -64,8 +85,11 @@ export default function TablaTransaccionesVendedor({
                   <td className="px-5 py-4 font-black text-slate-950">
                     {transaccion.pedido}
                   </td>
-                  <td className="px-5 py-4 font-semibold text-slate-700">
-                    {transaccion.comprador}
+                  <td
+                    className="px-5 py-4 font-semibold text-slate-700"
+                    title={transaccion.idComprador}
+                  >
+                    {abreviarId(transaccion.idComprador)}
                   </td>
                   <td className="px-5 py-4 font-black text-slate-950">
                     {transaccion.montoComprador}

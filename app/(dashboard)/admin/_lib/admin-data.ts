@@ -1,5 +1,6 @@
 import prisma from "@/lib/db/prisma";
 import { EstadoTransaccion, Prisma } from "@prisma/client";
+import { calcularComisionVenta } from "@/lib/payments/comisiones";
 import type { DashboardAdminData, TransaccionAdmin } from "../types";
 import type { AdminSearchParams } from "./admin-filters";
 import { obtenerQueryAdmin } from "./admin-filters";
@@ -11,6 +12,15 @@ import {
 } from "./admin-formatters";
 
 type VendedorDb = Awaited<ReturnType<typeof prisma.vendedor.findMany>>[number];
+type TransaccionAdminDb = Prisma.TransaccionGetPayload<{
+  include: {
+    venta: {
+      select: {
+        monto_bruto: true;
+      };
+    };
+  };
+}>;
 
 function crearWhereBusqueda(
   search: string,
@@ -49,17 +59,22 @@ function crearWhereBusqueda(
 }
 
 function mapearTransaccionesAdmin(
-  transacciones: Awaited<ReturnType<typeof prisma.transaccion.findMany>>,
-  vendedoresPorId: Map<string, VendedorDb>,
+  transacciones: TransaccionAdminDb[],
 ): TransaccionAdmin[] {
   return transacciones.map((transaccion) => {
-    const vendedor = vendedoresPorId.get(transaccion.id_vendedor);
+    const totalComprador =
+      transaccion.venta?.monto_bruto ??
+      calcularComisionVenta(transaccion.monto).montoTotalComprador;
+    const montoTabla =
+      transaccion.estado_transaccion === EstadoTransaccion.CANCELADA
+        ? -Math.abs(Number(totalComprador))
+        : totalComprador;
 
     return {
       pedido: `#${transaccion.id_pedido}`,
-      comprador: transaccion.id_comprador,
-      vendedor: vendedor?.nombre ?? transaccion.id_vendedor,
-      monto: formatearMonto(transaccion.monto),
+      idComprador: transaccion.id_comprador,
+      vendedor: transaccion.id_vendedor,
+      monto: formatearMonto(Number(montoTabla)),
       estado: estadoAdminDesdePrisma(transaccion.estado_transaccion),
       fecha: formatearFecha(transaccion.creado_en),
     };
@@ -80,10 +95,6 @@ export async function obtenerDashboardAdmin(
     id: vendedor.id_vendedor,
     nombre: vendedor.nombre,
   }));
-
-  const vendedoresPorId = new Map(
-    vendedoresDb.map((vendedor) => [vendedor.id_vendedor, vendedor]),
-  );
 
   const whereMetricas: Prisma.TransaccionWhereInput = query.vendedor
     ? { id_vendedor: query.vendedor }
@@ -118,6 +129,13 @@ export async function obtenerDashboardAdmin(
       orderBy: { creado_en: "desc" },
       skip,
       take: query.perPage,
+      include: {
+        venta: {
+          select: {
+            monto_bruto: true,
+          },
+        },
+      },
     }),
     prisma.transaccion.count({ where: whereMetricas }),
     prisma.transaccion.count({
@@ -135,7 +153,7 @@ export async function obtenerDashboardAdmin(
     prisma.venta.aggregate({
       where: whereVentasAprobadas,
       _sum: {
-        monto_bruto: true,
+        monto_neto_vendedor: true,
         monto_comision: true,
       },
     }),
@@ -145,8 +163,8 @@ export async function obtenerDashboardAdmin(
     totalTransaccionesMetricas === 0
       ? 0
       : Math.round((pagosAprobados / totalTransaccionesMetricas) * 100);
-  const gananciasTotales = resumenVentas._sum.monto_bruto ?? 0;
-  const gananciaNeta = resumenVentas._sum.monto_comision ?? 0;
+  const montoVentas = resumenVentas._sum.monto_neto_vendedor ?? 0;
+  const comisionEventia = resumenVentas._sum.monto_comision ?? 0;
 
   return {
     metricas: [
@@ -163,17 +181,17 @@ export async function obtenerDashboardAdmin(
         detalle: "Transacciones aprobadas",
       },
       {
-        titulo: "Ganancias totales",
-        valor: formatearMonto(gananciasTotales),
+        titulo: "Monto de ventas",
+        valor: formatearMonto(Number(montoVentas)),
         detalle: `${tasaAprobacion}% de pagos aprobados`,
       },
       {
-        titulo: "Ganancia neta",
-        valor: formatearMonto(gananciaNeta),
-        detalle: "Comision Eventia del 12%",
+        titulo: "Comision Eventia",
+        valor: formatearMonto(Number(comisionEventia)),
+        detalle: "Retencion sobre ventas aprobadas",
       },
     ],
-    transacciones: mapearTransaccionesAdmin(transaccionesDb, vendedoresPorId),
+    transacciones: mapearTransaccionesAdmin(transaccionesDb),
     vendedores,
     query,
     total,

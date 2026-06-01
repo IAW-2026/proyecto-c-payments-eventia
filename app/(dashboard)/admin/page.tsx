@@ -1,3 +1,4 @@
+import AccionesRapidasAdmin from "./_components/AccionesRapidasAdmin";
 import TransaccionesAdmin from "./_components/TransaccionesAdmin";
 import { obtenerDashboardAdmin } from "./_lib/admin-data";
 import type { AdminSearchParams } from "./_lib/admin-filters";
@@ -50,29 +51,7 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           />
 
           <aside className="grid gap-6">
-            <article className="rounded-lg border border-primary/15 bg-surface-container-lowest/70 p-5 shadow-soft-ambient">
-              <h2 className="text-headline-md text-on-background">
-                Acciones rapidas
-              </h2>
-              <p className="mt-2 text-body-md text-on-surface-variant">
-                Tareas frecuentes.
-              </p>
-              <div className="mt-5 grid gap-3">
-                {[
-                  "Ver transacciones",
-                  "Revisar pagos fallidos",
-                  "Administrar vendedores",
-                ].map((accion) => (
-                  <button
-                    type="button"
-                    key={accion}
-                    className="btn-retro-secondary text-left"
-                  >
-                    {accion}
-                  </button>
-                ))}
-              </div>
-            </article>
+            <AccionesRapidasAdmin />
           </aside>
         </section>
       </section>
