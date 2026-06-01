@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { protegerRutaPorRol } from "@/lib/auth/guards";
 
 export type EstadoCancelarPedidoAdmin = {
@@ -14,8 +15,14 @@ type CancelarPedidoMockResponse = {
   detalle?: string;
 };
 
-function obtenerAppUrl() {
-  return process.env.APP_URL ?? "http://localhost:3000";
+async function obtenerAppUrl() {
+  const headersList = await headers();
+  const host = headersList.get("x-forwarded-host") ?? headersList.get("host");
+  if (!host) {
+    throw new Error("No se pudo obtener la URL de la aplicación.");
+  }
+  const protocolo = headersList.get("x-forwarded-proto") ?? "http";
+  return `${protocolo}://${host}`;
 }
 
 export async function cancelarPedidoAdmin(
@@ -34,7 +41,8 @@ export async function cancelarPedidoAdmin(
   }
 
   try {
-    const response = await fetch(`${obtenerAppUrl()}/api/buyer/cancelarPedidoMock`, {
+    const appUrl = await obtenerAppUrl();
+    const response = await fetch(`${appUrl}/api/buyer/cancelarPedidoMock`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
