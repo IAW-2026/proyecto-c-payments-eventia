@@ -29,6 +29,7 @@ export default function FiltrosTransaccionesVendedor({
               estado: estado.value,
               page: 1,
             })}
+            aria-current={activo ? "page" : undefined}
             className={`inline-flex h-11 items-center rounded-md px-3 text-sm font-bold transition ${
               activo
                 ? "bg-primary text-white"

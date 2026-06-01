@@ -38,6 +38,9 @@ export default function FiltrosTransacciones({
         <BuscadorTransacciones query={query} />
 
         <form action="/admin" className="flex gap-2">
+          <label htmlFor="filtro-vendedor-admin" className="sr-only">
+            Filtrar por ID de vendedor
+          </label>
           <input type="hidden" name="search" value={query.search} />
           <input
             type="hidden"
@@ -46,6 +49,7 @@ export default function FiltrosTransacciones({
           />
           <input type="hidden" name="perPage" value={query.perPage} />
           <select
+            id="filtro-vendedor-admin"
             name="vendedor"
             defaultValue={query.vendedor}
             className="h-11 min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 outline-none transition hover:border-slate-300 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
@@ -75,6 +79,7 @@ export default function FiltrosTransacciones({
               <Link
                 key={estado.value}
                 href={crearHrefAdmin(query, { estado: estado.value, page: 1 })}
+                aria-current={activo ? "page" : undefined}
                 className={`inline-flex h-11 items-center rounded-md px-3 text-sm font-bold transition ${
                   activo
                     ? "bg-slate-950 text-white"
@@ -96,6 +101,8 @@ export default function FiltrosTransacciones({
               <Link
                 key={option}
                 href={crearHrefAdmin(query, { perPage: option, page: 1 })}
+                aria-current={query.perPage === option ? "page" : undefined}
+                aria-label={`Ver ${option} transacciones por pagina`}
                 className={`rounded px-2 py-1 text-sm font-black transition ${
                   query.perPage === option
                     ? "bg-blue-50 text-blue-700"
