@@ -43,6 +43,8 @@ Tambien expone endpoints REST pensados para la integracion con otras apps del pr
 - En pruebas con Mercado Pago sandbox se observó que, ocasionalmente, algunos pagos quedan temporalmente en procesamiento o las notificaciones se demoran. Al reanudarse el servicio, los webhooks pendientes llegan a la aplicacion y las transacciones se actualizan correctamente en la base de datos.
 - Las cancelaciones solo se permiten sobre transacciones aprobadas. No se elimina la venta; se conserva el registro historico y las metricas consideran solo transacciones aprobadas.
 - SELLER_DEMO_USER_ID se usa provisoriamente en esta etapa para simular el vendedor en los mocks.
+- La tabla de vendedores conserva campos `nombre` y `email` como datos auxiliares del mock de Seller. En la integracion real entre aplicaciones, Payments solo necesita persistir el `id_vendedor` recibido desde Seller, por lo que esos campos podrian eliminarse.Como no afectan el flujo principal de pagos y al notarlo la entrega se encontraba en etapa de estabilizacion, se conservaron para evitar una migracion innecesaria sobre la base de datos antes de la correccion.
+- Sobre el rendimiento: las paginas de panel (`/admin`, `/vendedor`, `/comprador`) son vistas dinamicas protegidas que consultan la base de datos en tiempo real. Por ese motivo, su rendimiento puede depender de la respuesta de Neon/Vercel y no se optimizaron como paginas estaticas publicas.
 
 ## Pruebas con Mercado Pago sandbox
 
