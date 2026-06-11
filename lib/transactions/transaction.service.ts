@@ -11,8 +11,8 @@ export async function crearTransaccionCompleta(request: Request) {
   const body = await request.json();
   const datos = validarBodyNuevaTransaccion(body);
 
-  const apiKeyValida = process.env.BUYER_API_KEY
-    ? validarApiKey(request, process.env.BUYER_API_KEY)
+  const apiKeyValida = process.env.PAYMENTS_API_KEY
+    ? validarApiKey(request, process.env.PAYMENTS_API_KEY)
     : false;
 
   if (!apiKeyValida) {
@@ -24,19 +24,19 @@ export async function crearTransaccionCompleta(request: Request) {
   await validarComprador(datos.idComprador);
 
   const origen = new URL(request.url).origin;
-  const idVendedor = await obtenerIdOrganizador(datos.idEvento, origen);
+  const idOrganizador = await obtenerIdOrganizador(datos.idEvento, origen);
   const comision = calcularComisionVenta(datos.monto);
 
   await prisma.vendedor.upsert({
-    where: { id_vendedor: idVendedor },
+    where: { id_vendedor: idOrganizador },
     update: {
       nombre: `Vendedor Sandbox Evento ${datos.idEvento}`,
-      email: `vendedor.${idVendedor}@eventia.test`,
+      email: `vendedor.${idOrganizador}@eventia.test`,
     },
     create: {
-      id_vendedor: idVendedor,
+      id_vendedor: idOrganizador,
       nombre: `Vendedor Sandbox Evento ${datos.idEvento}`,
-      email: `vendedor.${idVendedor}@eventia.test`,
+      email: `vendedor.${idOrganizador}@eventia.test`,
     },
   });
 
@@ -44,7 +44,7 @@ export async function crearTransaccionCompleta(request: Request) {
     data: {
       id_pedido: datos.idPedido,
       id_comprador: datos.idComprador,
-      id_vendedor: idVendedor,
+      id_vendedor: idOrganizador,
       monto: datos.monto,
       moneda: "ARS",
     },
