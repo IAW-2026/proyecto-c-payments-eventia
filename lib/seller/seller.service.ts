@@ -11,7 +11,7 @@ export async function obtenerIdOrganizador(idEvento: number, origen: string) {
   }
 
   const response = await fetch(
-    `${sellerApiUrl}/seller/eventos/organizador/${idEvento}`,
+    `${sellerApiUrl}/seller/eventos/${idEvento}/organizador`,
     {
       method: "GET",
       headers: {
