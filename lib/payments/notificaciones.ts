@@ -54,7 +54,8 @@ export async function notificarEstadoTransaccion({
         },
         body: JSON.stringify(payload),
       });
-
+      console.log(`Notificando a ${destino} en ${urlServicio}/estadoTransaccion:`, payload);
+      
       if (!response.ok) {
         throw new Error(`${destino} respondio con estado ${response.status}`);
       }
