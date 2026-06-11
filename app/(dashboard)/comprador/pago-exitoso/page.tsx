@@ -11,27 +11,53 @@ function obtenerParametro(value: string | string[] | undefined) {
 
 async function obtenerUrlShipping(
   referenciaPago: string | undefined,
+  idPreferencia: string | undefined,
 ): Promise<string> {
   const shippingAppUrl = process.env.SHIPPING_APP_URL?.trim().replace(/\/$/, "");
 
-  if (!shippingAppUrl || !referenciaPago) {
+  if (!shippingAppUrl) {
+    console.warn("SHIPPING_APP_URL no esta configurada en este deployment");
     return "/comprador";
   }
 
-  const transaccion = await prisma.transaccion.findUnique({
-    where: { referencia_pago: referenciaPago },
+  if (!referenciaPago && !idPreferencia) {
+    console.warn(
+      "Mercado Pago no envio external_reference ni preference_id en el retorno exitoso",
+    );
+    return "/comprador";
+  }
+
+  const transaccion = await prisma.transaccion.findFirst({
+    where: {
+      OR: [
+        ...(referenciaPago ? [{ referencia_pago: referenciaPago }] : []),
+        ...(idPreferencia
+          ? [{ id_preferencia_pago: idPreferencia }]
+          : []),
+      ],
+    },
     select: { id_pedido: true },
   });
 
-  return transaccion
-    ? `${shippingAppUrl}/buyer/${transaccion.id_pedido}`
-    : "/comprador";
+  if (!transaccion) {
+    console.warn("No se encontro la transaccion para redirigir a Shipping", {
+      referenciaPago,
+      idPreferencia,
+    });
+    return "/comprador";
+  }
+
+  return `${shippingAppUrl}/buyer/${transaccion.id_pedido}`;
 }
 
 export default async function PagoExitosoPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const referenciaPago = obtenerParametro(params["external_reference"]);
-  const urlShipping = await obtenerUrlShipping(referenciaPago);
+  const idPreferencia = obtenerParametro(params["preference_id"]);
+  const urlShipping = await obtenerUrlShipping(
+    referenciaPago,
+    idPreferencia,
+  );
 
   return (
     <ResultadoPago
