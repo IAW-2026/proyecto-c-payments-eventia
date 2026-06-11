@@ -1,8 +1,8 @@
-type VendedorResponse = {
-  idVendedor: string;
+type OrganizadorResponse = {
+  idOrganizador: string;
 };
 
-export async function obtenerIdVendedor(idEvento: number, origen: string) {
+export async function obtenerIdOrganizador(idEvento: number, origen: string) {
   const sellerApiUrl = process.env.SELLER_API_URL ?? `${origen}/api`;
   const sellerApiKey = process.env.SELLER_API_KEY;
 
@@ -11,7 +11,7 @@ export async function obtenerIdVendedor(idEvento: number, origen: string) {
   }
 
   const response = await fetch(
-    `${sellerApiUrl}/seller/eventos/vendedor/${idEvento}`,
+    `${sellerApiUrl}/seller/eventos/organizador/${idEvento}`,
     {
       method: "GET",
       headers: {
@@ -24,11 +24,11 @@ export async function obtenerIdVendedor(idEvento: number, origen: string) {
     throw new Error(`Seller respondio con estado ${response.status}`);
   }
 
-  const data = (await response.json()) as Partial<VendedorResponse>;
+  const data = (await response.json()) as Partial<OrganizadorResponse>;
 
-  if (typeof data.idVendedor !== "string" || data.idVendedor.trim().length === 0) {
-    throw new Error("Seller no devolvio un idVendedor valido");
+  if (typeof data.idOrganizador !== "string" || data.idOrganizador.trim().length === 0) {
+    throw new Error("Seller no devolvio un idOrganizador valido");
   }
 
-  return data.idVendedor;
+  return data.idOrganizador;
 }

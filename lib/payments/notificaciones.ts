@@ -1,7 +1,7 @@
 type EstadoTransaccionNotificacion = "APROBADA" | "FALLIDA" | "CANCELADA";
 
 type PayloadEstadoTransaccion = {
-  id_pedido: number;
+  idPedido: number;
   estadoTransaccion: EstadoTransaccionNotificacion;
 };
 

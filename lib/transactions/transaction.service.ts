@@ -3,7 +3,7 @@ import { validarApiKey } from "@/lib/auth/apiKey";
 import prisma from "@/lib/db/prisma";
 import { calcularComisionVenta } from "@/lib/payments/comisiones";
 import { crearPreferenciaPago } from "@/lib/payments/preference.service";
-import { obtenerIdVendedor } from "@/lib/seller/seller.service";
+import { obtenerIdOrganizador } from "@/lib/seller/seller.service";
 import { validarBodyNuevaTransaccion } from "@/lib/transactions/transaction.validation";
 import { ErrorRespuestaHttp } from "@/lib/http/api-error";
 
@@ -24,7 +24,7 @@ export async function crearTransaccionCompleta(request: Request) {
   await validarComprador(datos.idComprador);
 
   const origen = new URL(request.url).origin;
-  const idVendedor = await obtenerIdVendedor(datos.idEvento, origen);
+  const idVendedor = await obtenerIdOrganizador(datos.idEvento, origen);
   const comision = calcularComisionVenta(datos.monto);
 
   await prisma.vendedor.upsert({

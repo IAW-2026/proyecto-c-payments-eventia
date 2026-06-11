@@ -21,12 +21,12 @@ const crearPedidoMockSchema = z.object({
 
 const eventosMock: EventoMock[] = [
   {
-    idEvento: 1,
-    precio: 5000,
+    idEvento: 10,
+    precio: 8000,
   },
   {
     idEvento: 2,
-    precio: 8000,
+    precio: 8600,
   },
 ];
 

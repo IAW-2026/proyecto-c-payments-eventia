@@ -40,7 +40,7 @@ export async function cancelarPedidoPorId(idPedido: number, origen: string) {
     origen,
     destinos: ["seller"],
     payload: {
-      id_pedido: transaccion.id_pedido,
+      idPedido: transaccion.id_pedido,
       estadoTransaccion: "CANCELADA",
     },
   });
