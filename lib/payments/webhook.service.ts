@@ -259,16 +259,18 @@ export async function procesarWebhookMercadoPago(
     });
   }
 
-  const origen = new URL(request.url).origin;
+  if (estadoTransaccion !== EstadoTransaccion.PENDIENTE) {
+    const origen = new URL(request.url).origin;
 
-  await notificarEstadoTransaccion({
-    origen,
-    destinos: ["seller", "shipping"],
-    payload: {
-      idPedido: transaccion.id_pedido,
-      estadoTransaccion,
-    },
-  });
+    await notificarEstadoTransaccion({
+      origen,
+      destinos: ["seller", "shipping"],
+      payload: {
+        idPedido: transaccion.id_pedido,
+        estadoTransaccion,
+      },
+    });
+  }
 
   return { mensaje: "OK", status: 200 };
 }

@@ -1,4 +1,4 @@
-type EstadoTransaccionNotificacion = "PENDIENTE" | "APROBADA" | "FALLIDA" | "CANCELADA";
+type EstadoTransaccionNotificacion = "APROBADA" | "FALLIDA" | "CANCELADA";
 
 type PayloadEstadoTransaccion = {
   idPedido: number;
