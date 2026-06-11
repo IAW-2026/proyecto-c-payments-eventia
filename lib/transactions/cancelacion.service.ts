@@ -47,7 +47,7 @@ export async function cancelarPedidoPorId(idPedido: number, origen: string) {
 }
 
 export async function cancelarPedido(request: Request) {
-  if (!validarApiKey(request, process.env.BUYER_API_KEY)) {
+  if (!validarApiKey(request, process.env.PAYMENTS_API_KEY)) {
     throw new ErrorRespuestaHttp(401, {
       error: "API key invalida",
     });
