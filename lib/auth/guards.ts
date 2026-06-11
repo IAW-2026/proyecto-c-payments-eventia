@@ -3,26 +3,27 @@ import "server-only";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import {
-  obtenerRolDesdeClaims,
-  obtenerRolDesdeUsuario,
+  obtenerRolesDesdeClaims,
+  obtenerRolesDesdeUsuario,
   type RolUsuario,
 } from "./roles";
 
 export async function obtenerSesionConRol() {
   const sesion = await auth();
-  const rolDesdeToken = obtenerRolDesdeClaims(sesion.sessionClaims);
+  const rolesDesdeToken = obtenerRolesDesdeClaims(sesion.sessionClaims);
 
-  if (sesion.userId && rolDesdeToken) {
+  if (sesion.userId && rolesDesdeToken.length > 0) {
     return {
       user: { id: sesion.userId },
-      rol: rolDesdeToken,
+      rol: rolesDesdeToken[0],
+      roles: rolesDesdeToken,
     };
   }
 
   const user = await currentUser();
-  const rol = obtenerRolDesdeUsuario(user);
+  const roles = obtenerRolesDesdeUsuario(user);
 
-  return { user, rol };
+  return { user, rol: roles[0] ?? null, roles };
 }
 
 export async function protegerRutaPorRol(rolesPermitidos: RolUsuario[]) {
@@ -32,12 +33,13 @@ export async function protegerRutaPorRol(rolesPermitidos: RolUsuario[]) {
     redirect("/sign-in");
   }
 
-  if (!sesion.rol || !rolesPermitidos.includes(sesion.rol)) {
+  if (!sesion.roles.some((rol) => rolesPermitidos.includes(rol))) {
     redirect("/");
   }
 
   return sesion as typeof sesion & {
     user: NonNullable<typeof sesion.user>;
     rol: RolUsuario;
+    roles: RolUsuario[];
   };
 }

@@ -1,8 +1,12 @@
 import { clerkClient } from "@clerk/nextjs/server";
-import { obtenerRolUsuario, type RolUsuario } from "./roles";
+import {
+  obtenerRolesUsuario,
+  obtenerRolUsuario,
+  type RolUsuario,
+} from "./roles";
 
 export type { RolUsuario };
-export { obtenerRolUsuario };
+export { obtenerRolesUsuario, obtenerRolUsuario };
 
 export async function obtenerUsuarioClerk(idUsuario: string) {
   try {

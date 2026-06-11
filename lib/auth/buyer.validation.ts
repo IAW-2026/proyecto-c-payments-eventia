@@ -1,5 +1,5 @@
 import { ErrorRespuestaHttp } from "@/lib/http/api-error";
-import { obtenerRolUsuario, obtenerUsuarioClerk } from "@/lib/auth/clerk";
+import { obtenerRolesUsuario, obtenerUsuarioClerk } from "@/lib/auth/clerk";
 
 export async function validarComprador(idComprador: string) {
   const comprador = await obtenerUsuarioClerk(idComprador);
@@ -10,11 +10,9 @@ export async function validarComprador(idComprador: string) {
     });
   }
 
-  const rolComprador =
-    obtenerRolUsuario(comprador.publicMetadata) ??
-    obtenerRolUsuario(comprador.privateMetadata);
+  const rolesComprador = (comprador?.publicMetadata?.roles as string[]) ||[];
 
-  if (rolComprador !== "buyer") {
+  if (!rolesComprador.includes('buyer')){
     throw new ErrorRespuestaHttp(403, {
       error: "El usuario de Clerk no tiene rol buyer",
     });

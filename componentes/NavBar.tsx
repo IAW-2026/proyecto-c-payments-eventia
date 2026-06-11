@@ -3,20 +3,20 @@
 import { UserButton, useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { obtenerRolDesdeUsuario } from "@/lib/auth/roles";
+import { obtenerRolesDesdeUsuario } from "@/lib/auth/roles";
 
 export default function NavBar() {
   const pathname = usePathname();
   const { isSignedIn, user } = useUser();
-  const rol = obtenerRolDesdeUsuario(user);
+  const roles = obtenerRolesDesdeUsuario(user);
   const links = [
-    ...(rol === "adminPayments"
+    ...(roles.includes("adminPayments")
       ? [{ href: "/admin", label: "Dashboard", icon: "calendar" }]
       : []),
-    ...(rol === "seller"
+    ...(roles.includes("seller")
       ? [{ href: "/vendedor", label: "Vendedor", icon: "calendar" }]
       : []),
-    ...(rol === "buyer"
+    ...(roles.includes("buyer")
       ? [{ href: "/comprador", label: "Mis pagos", icon: "calendar" }]
       : []),
   ];
