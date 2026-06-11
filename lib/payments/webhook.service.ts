@@ -266,7 +266,7 @@ export async function procesarWebhookMercadoPago(
       origen,
       destinos: ["seller", "shipping"],
       payload: {
-        idPedido: transaccion.id_pedido,
+        id_pedido: transaccion.id_pedido,
         estadoTransaccion,
       },
     });
