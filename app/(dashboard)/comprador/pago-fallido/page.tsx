@@ -1,5 +1,10 @@
 import ResultadoPago from "../_components/ResultadoPago";
 
+function obtenerUrlEventosBuyer() {
+  const buyerAppUrl = process.env.BUYER_APP_URL?.trim().replace(/\/$/, "");
+  return buyerAppUrl ? `${buyerAppUrl}/eventos` : "/comprador";
+}
+
 export default function PagoFallidoPage() {
   return (
     <ResultadoPago
@@ -9,11 +14,11 @@ export default function PagoFallidoPage() {
       descripcion="Hubo un problema con la transaccion. No te preocupes, ningun cargo fue realizado en tu tarjeta."
       acciones={[
         {
-          href: "/comprador",
-          label: "Volver mis pagos",
+          href: obtenerUrlEventosBuyer(),
+          label: "Volver a comprar",
           variant: "primary",
         },
-        ]}
+      ]}
     />
   );
 }
