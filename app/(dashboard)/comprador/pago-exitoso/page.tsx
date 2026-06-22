@@ -9,6 +9,14 @@ function obtenerParametro(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function construirUrlShipping(shippingAppUrl: string, idPedido: number) {
+  const baseUrl = shippingAppUrl.trim().replace(/\/$/, "");
+
+  return baseUrl.endsWith("/shipping")
+    ? `${baseUrl}/${idPedido}`
+    : `${baseUrl}/shipping/${idPedido}`;
+}
+
 async function obtenerUrlShipping(
   referenciaPago: string | undefined,
   idPreferencia: string | undefined,
@@ -47,7 +55,7 @@ async function obtenerUrlShipping(
     return "/comprador";
   }
 
-  return `${shippingAppUrl}/buyer/${transaccion.id_pedido}`;
+  return construirUrlShipping(shippingAppUrl, transaccion.id_pedido);
 }
 
 export default async function PagoExitosoPage({ searchParams }: PageProps) {
