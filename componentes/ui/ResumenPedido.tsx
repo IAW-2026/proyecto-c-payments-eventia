@@ -1,10 +1,10 @@
 interface ResumenPedidoProps {
-  idEvento: number;
+  idPedido: number;
   monto: number;
 }
 
 export default function ResumenPedido({
-  idEvento,
+  idPedido,
   monto,
 }: ResumenPedidoProps) {
   return (
@@ -14,7 +14,7 @@ export default function ResumenPedido({
           Orden de pago
         </h3>
         <span className="rounded-full bg-secondary-container px-3 py-1 font-label text-[11px] font-black uppercase tracking-wide text-on-secondary-container">
-          Demo 
+          Mercado Pago
         </span>
       </div>
 
@@ -38,9 +38,9 @@ export default function ResumenPedido({
           </span>
           <div>
             <p className="font-label text-[10px] font-black uppercase tracking-wide text-on-surface-variant">
-              Evento
+              Pedido
             </p>
-            <p className="font-semibold text-on-surface">#{idEvento}</p>
+            <p className="font-semibold text-on-surface">#{idPedido}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">

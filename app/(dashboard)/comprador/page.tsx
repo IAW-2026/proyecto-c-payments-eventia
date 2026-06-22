@@ -21,9 +21,10 @@ const clasesEstado: Record<EstadoTransaccion, string> = {
 export default async function CompradorPage() {
   const { user } = await protegerRutaPorRol(["buyer"]);
 
-  const ultimasTransacciones = await obtenerUltimasTransaccionesComprador(
-    user.id,
-  );
+  const {
+    transaccionPendiente,
+    ultimasTransacciones,
+  } = await obtenerUltimasTransaccionesComprador(user.id);
 
   return (
     <main className="layout-container">
@@ -34,45 +35,38 @@ export default async function CompradorPage() {
             Tus pagos
           </h1>
           <p className="mt-4 max-w-2xl text-body-md text-on-surface-variant">
-            Consulta tus ultimas operaciones y genera una orden demo para
-            probar el checkout.
+            Consulta tus ultimas operaciones.
           </p>
         </header>
 
-        <article className="card-retro-tonal mb-6">
-          <div className="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
-            <div>
-              <p className="text-label-lg text-on-surface-variant">
-                Orden demo
-              </p>
-              <p className="mt-3 text-body-md text-on-surface-variant">
-                Al tocar el boton se crea una orden de pago de prueba y se
-                inicia el checkout con Mercado Pago.
-              </p>
-            </div>
+        {transaccionPendiente ? (
+          <article className="card-retro-tonal mb-6 border-primary/25 bg-secondary-container/30">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-label-lg text-primary">
+                  Pago pendiente
+                </p>
+                <h2 className="mt-2 text-title-lg text-on-surface">
+                  Pedido #{transaccionPendiente.id_pedido}
+                </h2>
+                <p className="mt-2 text-body-md text-on-surface-variant">
+                  Tenes una orden lista para abonar por{" "}
+                  <strong className="text-on-surface">
+                    {formatearMonto(transaccionPendiente.montoTotalComprador)}
+                  </strong>
+                  .
+                </p>
+              </div>
 
-            <Link
-              href="/comprador/checkout"
-              className="btn-retro-primary inline-flex w-full items-center justify-center gap-2 whitespace-nowrap px-5 md:w-auto md:self-center"
-            >
-              <span>Probar checkout</span>
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
+              <Link
+                href={`/comprador/checkout?idTransaccion=${transaccionPendiente.id_transaccion}`}
+                className="btn-retro-primary inline-flex w-full items-center justify-center whitespace-nowrap px-5 md:w-auto"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M5 12h14m-6-6 6 6-6 6"
-                />
-              </svg>
-            </Link>
-          </div>
-        </article>
+                Continuar checkout
+              </Link>
+            </div>
+          </article>
+        ) : null}
 
         <article className="card-retro-tonal">
           <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">

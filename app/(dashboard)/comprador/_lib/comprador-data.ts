@@ -1,4 +1,5 @@
 import prisma from "@/lib/db/prisma";
+import { EstadoTransaccion } from "@prisma/client";
 import { calcularComisionVenta } from "@/lib/payments/comisiones";
 
 type TransaccionComprador = Awaited<
@@ -26,6 +27,30 @@ function consultarUltimasTransaccionesComprador(idComprador: string) {
   });
 }
 
+function consultarUltimaTransaccionPendiente(idComprador: string) {
+  return prisma.transaccion.findFirst({
+    where: {
+      id_comprador: idComprador,
+      estado_transaccion: EstadoTransaccion.PENDIENTE,
+      id_preferencia_pago: {
+        not: null,
+      },
+    },
+    orderBy: { creado_en: "desc" },
+    select: {
+      id_transaccion: true,
+      id_pedido: true,
+      monto: true,
+      estado_transaccion: true,
+      venta: {
+        select: {
+          monto_bruto: true,
+        },
+      },
+    },
+  });
+}
+
 export function obtenerMontoTotalComprador(
   transaccion: TransaccionComprador,
 ) {
@@ -36,14 +61,25 @@ export function obtenerMontoTotalComprador(
 }
 
 export async function obtenerUltimasTransaccionesComprador(idComprador: string) {
-  const transacciones = await consultarUltimasTransaccionesComprador(
-    idComprador,
-  );
+  const [transacciones, transaccionPendiente] = await Promise.all([
+    consultarUltimasTransaccionesComprador(idComprador),
+    consultarUltimaTransaccionPendiente(idComprador),
+  ]);
 
-  return transacciones.map((transaccion) => ({
-    id_transaccion: transaccion.id_transaccion,
-    id_pedido: transaccion.id_pedido,
-    montoTotalComprador: obtenerMontoTotalComprador(transaccion),
-    estado_transaccion: transaccion.estado_transaccion,
-  }));
+  return {
+    transaccionPendiente: transaccionPendiente
+      ? {
+          id_transaccion: transaccionPendiente.id_transaccion,
+          id_pedido: transaccionPendiente.id_pedido,
+          montoTotalComprador: obtenerMontoTotalComprador(transaccionPendiente),
+          estado_transaccion: transaccionPendiente.estado_transaccion,
+        }
+      : null,
+    ultimasTransacciones: transacciones.map((transaccion) => ({
+      id_transaccion: transaccion.id_transaccion,
+      id_pedido: transaccion.id_pedido,
+      montoTotalComprador: obtenerMontoTotalComprador(transaccion),
+      estado_transaccion: transaccion.estado_transaccion,
+    })),
+  };
 }

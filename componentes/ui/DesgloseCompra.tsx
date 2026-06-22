@@ -6,9 +6,7 @@ interface DesgloseProps {
   total: number;
   comision: number;
   totalConComision: number;
-  preferenceId: string | null;
-  cargando: boolean;
-  alIniciarCompra: () => void;
+  preferenceId: string;
 }
 
 export default function DesgloseCompra({
@@ -16,8 +14,6 @@ export default function DesgloseCompra({
   comision,
   totalConComision,
   preferenceId,
-  cargando,
-  alIniciarCompra,
 }: DesgloseProps) {
   return (
     <div className="card-retro flex h-fit w-full flex-col justify-between bg-surface-container-lowest">
@@ -52,23 +48,12 @@ export default function DesgloseCompra({
       </div>
 
       <div className="space-y-4">
-        {!preferenceId ? (
-          <button
-            type="button"
-            onClick={alIniciarCompra}
-            disabled={cargando}
-            className="w-full rounded-xl bg-primary-container py-3.5 text-sm font-bold tracking-wide text-background shadow-soft-ambient transition hover:bg-primary disabled:cursor-not-allowed disabled:opacity-45"
-          >
-            {cargando ? "Procesando orden..." : "Continuar con Mercado Pago"}
-          </button>
-        ) : (
-          <div className="space-y-3 rounded-xl border border-primary/10 bg-surface-container-low p-4">
-            <p className="text-center font-label text-[11px] font-black uppercase tracking-wide text-primary">
-              Orden lista para abonar
-            </p>
-            <BotonPago preferenceId={preferenceId} />
-          </div>
-        )}
+        <div className="space-y-3 rounded-xl border border-primary/10 bg-surface-container-low p-4">
+          <p className="text-center font-label text-[11px] font-black uppercase tracking-wide text-primary">
+            Orden lista para abonar
+          </p>
+          <BotonPago preferenceId={preferenceId} />
+        </div>
 
         <div className="space-y-2 border-t border-primary/10 pt-3 text-center text-[11px] font-medium leading-relaxed text-on-surface-variant">
           <p className="font-bold text-on-surface">Pago cifrado por Mercado Pago</p>
