@@ -12,9 +12,9 @@ function obtenerParametro(value: string | string[] | undefined) {
 function construirUrlShipping(shippingAppUrl: string, idPedido: number) {
   const baseUrl = shippingAppUrl.trim().replace(/\/$/, "");
 
-  return baseUrl.endsWith("/shipping")
+  return baseUrl.endsWith("/buyer")
     ? `${baseUrl}/${idPedido}`
-    : `${baseUrl}/shipping/${idPedido}`;
+    : `${baseUrl}/buyer/${idPedido}`;
 }
 
 async function obtenerUrlShipping(
