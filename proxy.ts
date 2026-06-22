@@ -12,7 +12,8 @@ const isPublicRoute = createRouteMatcher([
   '/api/payments/pedidoCancelado(.*)',
   '/api/seller(.*)',
   '/api/shipping(.*)',
-  '/api/payments/webhooks/mercadopago(.*)'
+  '/api/payments/webhooks/mercadopago(.*)',
+  '/api/datos/transacciones(.*)'
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
