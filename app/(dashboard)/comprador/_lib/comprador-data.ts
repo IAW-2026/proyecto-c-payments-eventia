@@ -2,6 +2,8 @@ import prisma from "@/lib/db/prisma";
 import { EstadoTransaccion } from "@prisma/client";
 import { calcularComisionVenta } from "@/lib/payments/comisiones";
 
+const MINUTOS_VIGENCIA_CHECKOUT = 15;
+
 type TransaccionComprador = Awaited<
   ReturnType<typeof consultarUltimasTransaccionesComprador>
 >[number];
@@ -28,10 +30,18 @@ function consultarUltimasTransaccionesComprador(idComprador: string) {
 }
 
 function consultarUltimaTransaccionPendiente(idComprador: string) {
+  const fechaMinima = new Date(
+    Date.now() - MINUTOS_VIGENCIA_CHECKOUT * 60 * 1000,
+  );
+
   return prisma.transaccion.findFirst({
     where: {
       id_comprador: idComprador,
       estado_transaccion: EstadoTransaccion.PENDIENTE,
+      estado_proveedor: "preferencia_creada",
+      creado_en: {
+        gte: fechaMinima,
+      },
       id_preferencia_pago: {
         not: null,
       },
