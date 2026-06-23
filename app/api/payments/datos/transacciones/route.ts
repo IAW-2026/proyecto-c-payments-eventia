@@ -12,7 +12,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "API key invalida" }, { status: 401 });
     }
 
-    const transacciones = await prisma.Transaccion.findMany({
+    const transacciones = await prisma.transaccion.findMany({
       orderBy: { creado_en: "desc" },
       select: {
         id_transaccion: true,
