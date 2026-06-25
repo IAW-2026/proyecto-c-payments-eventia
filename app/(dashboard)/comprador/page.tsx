@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { EstadoTransaccion } from "@prisma/client";
+import BotonVolver from "@/componentes/BotonVolver";
 import { protegerRutaPorRol } from "@/lib/auth/guards";
 import { formatearMonto } from "@/lib/formatters/moneda";
 import { obtenerUltimasTransaccionesComprador } from "./_lib/comprador-data";
@@ -29,6 +30,8 @@ export default async function CompradorPage() {
   return (
     <main className="layout-container">
       <section className="mx-auto max-w-4xl">
+        <BotonVolver />
+
         <header className="mb-8">
           <span className="chip-retro">Comprador</span>
           <h1 className="mt-5 text-headline-lg-mobile text-on-background md:text-headline-lg">
