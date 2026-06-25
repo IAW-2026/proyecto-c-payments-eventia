@@ -2,9 +2,13 @@ type OrganizadorResponse = {
   idOrganizador: string;
 };
 
-export async function obtenerIdOrganizador(idEvento: number, origen: string) {
-  const sellerApiUrl = process.env.SELLER_API_URL ?? `${origen}/api`;
+export async function obtenerIdOrganizador(idEvento: number) {
+  const sellerApiUrl = process.env.SELLER_API_URL;
   const sellerApiKey = process.env.SELLER_API_KEY;
+
+  if (!sellerApiUrl) {
+    throw new Error("SELLER_API_URL no esta definida");
+  }
 
   if (!sellerApiKey) {
     throw new Error("SELLER_API_KEY no esta definida");

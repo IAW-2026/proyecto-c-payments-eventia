@@ -1,4 +1,3 @@
-import AccionesRapidasAdmin from "./_components/AccionesRapidasAdmin";
 import TransaccionesAdmin from "./_components/TransaccionesAdmin";
 import { obtenerDashboardAdmin } from "./_lib/admin-data";
 import type { AdminSearchParams } from "./_lib/admin-filters";
@@ -42,17 +41,13 @@ export default async function AdminPage({ searchParams }: AdminPageProps) {
           ))}
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+        <section>
           <TransaccionesAdmin
             transacciones={dashboard.transacciones}
             vendedores={dashboard.vendedores}
             query={dashboard.query}
             total={dashboard.total}
           />
-
-          <aside className="grid gap-6">
-            <AccionesRapidasAdmin />
-          </aside>
         </section>
       </section>
     </main>

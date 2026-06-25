@@ -24,7 +24,7 @@ export async function crearTransaccionCompleta(request: Request) {
   await validarComprador(datos.idComprador);
 
   const origen = new URL(request.url).origin;
-  const idOrganizador = await obtenerIdOrganizador(datos.idEvento, origen);
+  const idOrganizador = await obtenerIdOrganizador(datos.idEvento);
   const comision = calcularComisionVenta(datos.monto);
 
   await prisma.vendedor.upsert({

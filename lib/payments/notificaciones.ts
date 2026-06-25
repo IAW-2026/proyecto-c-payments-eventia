@@ -7,13 +7,17 @@ type PayloadEstadoTransaccion = {
 
 type DestinoNotificacion = "seller" | "shipping";
 
-function obtenerUrlServicio(destino: DestinoNotificacion, origen: string) {
-  let url: string;
+function obtenerUrlServicio(destino: DestinoNotificacion) {
+  let url: string | undefined;
 
   if (destino === "seller") {
-    url = process.env.SELLER_API_URL ?? `${origen}/api`;
+    url = process.env.SELLER_API_URL;
   } else {
-    url = process.env.SHIPPING_API_URL ?? `${origen}/api`;
+    url = process.env.SHIPPING_API_URL;
+  }
+
+  if (!url) {
+    throw new Error(`URL de ${destino} no configurada`);
   }
 
   return url;
@@ -33,7 +37,6 @@ function obtenerApiKeyServicio(destino: DestinoNotificacion): string {
 }
 
 export async function notificarEstadoTransaccion({
-  origen,
   destinos,
   payload,
 }: {
@@ -43,7 +46,7 @@ export async function notificarEstadoTransaccion({
 }) {
   const resultados = await Promise.allSettled(
     destinos.map(async (destino) => {
-      const urlServicio = obtenerUrlServicio(destino, origen);
+      const urlServicio = obtenerUrlServicio(destino);
       const apiKey = obtenerApiKeyServicio(destino);
 
       const response = await fetch(`${urlServicio}/${destino}/estadoTransaccion`, {
