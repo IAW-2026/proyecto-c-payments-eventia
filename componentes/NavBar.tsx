@@ -5,6 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { obtenerRolesDesdeUsuario } from "@/lib/auth/roles";
 
+function obtenerUrlEventosBuyer() {
+  const buyerAppUrl = process.env.NEXT_PUBLIC_BUYER_APP_URL?.replace(/\/$/, "");
+  return buyerAppUrl ? `${buyerAppUrl}/eventos?page=1` : "/";
+}
+
 export default function NavBar() {
   const pathname = usePathname();
   const { isSignedIn, user } = useUser();
@@ -31,8 +36,8 @@ export default function NavBar() {
     <header className="sticky top-0 z-50 border-b border-primary/15 bg-background/95 backdrop-blur-md">
       <div className="grid min-h-20 grid-cols-[minmax(120px,1fr)_auto_minmax(120px,1fr)] items-center gap-6 px-mobile-padding md:px-desktop-padding">
         <Link
-          href="/"
-          className="font-label text-3xl font-black text-primary no-underline"
+          href={obtenerUrlEventosBuyer()}
+          className="app-navbar__brand"
         >
           Eventia
         </Link>
