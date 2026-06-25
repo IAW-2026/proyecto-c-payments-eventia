@@ -9,7 +9,7 @@ export default function NotFound() {
       titulo="No encontramos esta pagina"
       descripcion="La direccion puede estar incompleta, haber cambiado o no pertenecer a una seccion disponible de Eventia."
       accionPrimaria={{
-        href: `${env.BUYER_APP_URL}/app/eventos?page=1`,
+        href: `${env.BUYER_APP_URL}/eventos?page=1`,
         label: "Volver al inicio",
       }}
     />
